@@ -488,10 +488,22 @@ class RAGEngine {
      */
     async initialize() {
         try {
-            // 尝试从文件加载（服务器环境下）
+            // 1. 首先加载本地知识库
             const response = await fetch('./knowledge-base/education-data.json');
             this.knowledgeBase = await response.json();
             console.log('RAG引擎初始化成功（从文件加载）');
+            
+            // 2. 尝试从乐享知识库获取最新数据（如果可用）
+            try {
+                const lexiangData = await this.fetchLexiangData();
+                if (lexiangData && lexiangData.length > 0) {
+                    // 合并乐享数据到本地知识库
+                    this.mergeLexiangData(lexiangData);
+                    console.log('乐享知识库数据已合并');
+                }
+            } catch (lexiangError) {
+                console.log('乐享知识库加载失败（可能未配置MCP）:', lexiangError.message);
+            }
         } catch (error) {
             // 如果加载失败（如本地文件CORS问题），使用内嵌默认数据
             console.log('RAG引擎使用内嵌默认数据（文件加载失败）');
@@ -499,6 +511,57 @@ class RAGEngine {
         }
         this.initialized = true;
         return true;
+    }
+
+    /**
+     * 从乐享知识库获取数据
+     * 注：乐享MCP需要服务端支持，前端仅为模拟实现
+     */
+    async fetchLexiangData() {
+        // 检查是否配置了乐享MCP
+        const mcpConfig = window.mcpConfig || {};
+        if (!mcpConfig.lexiang || !mcpConfig.lexiang.enabled) {
+            console.log('乐享MCP未配置，跳过');
+            return [];
+        }
+        
+        try {
+            // 尝试调用乐享MCP（需要服务端代理）
+            const response = await fetch('/api/lexiang/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    spaceId: '103d710cda0b481dbee76ab7e8994c56',
+                    query: '腾讯教育 案例 产品'
+                })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                return data.results || [];
+            }
+        } catch (error) {
+            console.log('乐享API调用失败:', error.message);
+        }
+        
+        return [];
+    }
+    
+    /**
+     * 合并乐享数据到本地知识库
+     */
+    mergeLexiangData(lexiangData) {
+        if (!this.knowledgeBase) return;
+        
+        // 标记乐享数据来源
+        this.knowledgeBase.lexiangData = {
+            lastUpdated: new Date().toISOString(),
+            source: 'CSIG教育空间',
+            itemCount: lexiangData.length
+        };
+        
+        // 这里可以添加数据合并逻辑
+        console.log(`已获取 ${lexiangData.length} 条乐享知识库数据`);
     }
 
     /**

@@ -233,7 +233,16 @@
             "name": "产教融合课程共建",
             "content": {
               "curriculumDesign": "与高校合作开发云计算、大数据、人工智能等课程，融入企业实际案例和技术",
-              "practicalPlatforms": ["腾讯云实验室", "开悟平台"],
+              "practicalPlatforms": [
+                {
+                  "name": "腾讯云实验室",
+                  "description": "提供云计算、大数据等实验环境"
+                },
+                {
+                  "name": "开悟平台",
+                  "description": "多智能体强化学习科研平台，用于AI算法研究和教学（注：开悟是科研训练平台，非面向教育的智能体平台）"
+                }
+              ],
               "exampleCourses": ["人工智能+交通", "深度强化学习"]
             }
           },
