@@ -113,7 +113,8 @@ class RAGEngine {
                     "date": "2025",
                     "partner": "同济大学",
                     "content": "围绕大模型核心展开大设计层面的深度协同创新",
-                    "results": "共同规划面向智能教学场景的下一代教育大模型"
+                    "results": "共同规划面向智能教学场景的下一代教育大模型",
+                    "category": "科研合作/大模型"
                 },
                 {
                     "id": "case-002",
@@ -121,7 +122,8 @@ class RAGEngine {
                     "date": "2025-10",
                     "partner": "上海海事大学",
                     "content": "共同打造海商法大模型，推出双平台战略",
-                    "results": "发布海商法大模型和教育数字化平台"
+                    "results": "发布海商法大模型和教育数字化平台",
+                    "category": "垂直领域/法学"
                 },
                 {
                     "id": "case-003",
@@ -130,6 +132,7 @@ class RAGEngine {
                     "partner": "清华大学、上海交通大学、西安电子科技大学、华南理工大学、深圳大学、香港城市大学",
                     "content": "面向计算机、软件或人工智能专业学生，以'课程讲解+实训'形式开展的线下/线上训练营",
                     "results": "培养学生在AI Coding领域的产业技术实践能力，服务于AI Coding创新挑战赛等赛事",
+                    "category": "竞赛活动/编程教育",
                     "details": {
                         "duration": "3课时（约0.5天）",
                         "modules": [
@@ -151,6 +154,7 @@ class RAGEngine {
                     "partner": "使用学校包括：北京师范大学附属中学、首师大子期实验中学等（非合作开发方）",
                     "content": "腾讯自主研发的面向青少年的AIGC创作平台，基于腾讯混元及开源大模型，提供AI生文、AI绘画、AI视频、AI建模、AI音乐、AI编程与AI智能体等创作工具，支持跨学科项目式学习（PBL）",
                     "results": "截至目前，已覆盖超过300所学校、5000名师生，师生在平台上创作了超过30000份学生作品；应用于校内课程、课后服务及科普竞赛等多种场景",
+                    "category": "K12/AIGC教育",
                     "details": {
                         "coreModules": [
                             "AI生文、AI绘画、AI视频、AI建模、AI音乐、AI编程与AI智能体",
@@ -168,34 +172,292 @@ class RAGEngine {
                 },
                 {
                     "id": "case-005",
-                    "title": "腾讯教育智能体平台使用案例",
+                    "title": "腾讯教育智能体平台",
                     "date": "2025-09",
                     "partner": "北京大学、清华大学等8所高校及江苏开放大学",
-                    "content": "腾讯教育针对教育场景打造的AI原生平台，通过Agent技术推动课堂教学模式创新，构建'学、用、创、赛'一站式新一代学习生态。平台联动腾讯生态资源（腾讯文档、企业微信、Cloud Studio等），实现课程学习、实训工具、知识管理与创作分享的无缝衔接",
-                    "results": "平台助力多所高校举办智能体大赛，吸引8所高校64支战队109名选手参与，产出100+涵盖学业规划、代码开发、智能助教等方向的教育智能体应用成果。江苏开放大学于2025年8月引入平台，向20万师生开放使用，探索Agent在终身教育场景的应用",
+                    "content": "腾讯教育针对教育场景打造的AI原生平台，通过Agent技术推动课堂教学模式创新，构建'学、用、创、赛'一站式新一代学习生态",
+                    "results": "平台助力多所高校举办智能体大赛，吸引8所高校64支战队109名选手参与，产出100+教育智能体应用成果。江苏开放大学向20万师生开放使用",
+                    "category": "高等教育/智能体平台",
                     "details": {
                         "positioning": "新一代教育超级入口，学、用、创、赛一站式学习生态",
-                        "coreFunctions": [
-                            "多智能体协作与资源调度",
-                            "多类型智能体覆盖：教学、科研、专家、管理智能体",
-                            "丰富教育工具：图像生成、视频生成、音乐生成、编程助手、论文检索"
-                        ],
-                        "competitionCase": {
-                            "date": "2025年9月",
-                            "stats": {"teams": 64, "participants": 109, "outputs": 100},
-                            "outputDirections": ["学业规划", "代码开发", "智能助教"]
-                        },
-                        "successfulCases": [
-                            {
-                                "school": "江苏开放大学",
-                                "deploymentDate": "2025年8月",
-                                "coverage": "20万师生",
-                                "focus": "Agent在终身教育场景的应用"
-                            }
-                        ]
+                        "coreFunctions": ["多智能体协作与资源调度", "多类型智能体覆盖", "丰富教育工具"],
+                        "competitionCase": {"date": "2025年9月", "stats": {"teams": 64, "participants": 109, "outputs": 100}}
                     }
+                },
+                {
+                    "id": "case-006",
+                    "title": "南京信息工程大学腾讯特色班",
+                    "date": "2024",
+                    "partner": "南京信息工程大学",
+                    "content": "与高校深度合作共建特色人才培养项目，围绕云计算、人工智能等前沿技术领域，打造产教融合的拔尖人才培养模式",
+                    "results": "已培养多届学生，毕业生在腾讯及生态企业就业率显著提升，形成可复制的产教融合人才培养范式",
+                    "category": "职业教育/产教融合"
+                },
+                {
+                    "id": "case-007",
+                    "title": "广东轻工职业技术学院产业学院",
+                    "date": "2024",
+                    "partner": "广东轻工职业技术学院",
+                    "content": "共建数字创意设计产业学院，整合腾讯云技术资源与学校专业优势，培养数字文创、云计算、人工智能等领域的应用型人才",
+                    "results": "建成省级示范性产业学院，学生作品多次获得行业设计大奖，毕业生受到腾讯生态企业欢迎",
+                    "category": "职业教育/产业学院"
+                },
+                {
+                    "id": "case-008",
+                    "title": "深圳职业技术学院云计算人才培养",
+                    "date": "2024",
+                    "partner": "深圳职业技术学院",
+                    "content": "围绕云计算技术技能人才培养开展深度合作，共建实训基地、开发课程标准、组织技能认证",
+                    "results": "累计培养学生超过500人，腾讯云认证通过率达85%以上，多名学生入职腾讯及头部互联网企业",
+                    "category": "职业教育/技能培训"
+                },
+                {
+                    "id": "case-009",
+                    "title": "腾讯支教数字化帮扶项目",
+                    "date": "2023-2025",
+                    "partner": "云南、贵州、四川等多省偏远地区学校",
+                    "content": "通过数字化手段助力教育公平，为偏远地区学校提供在线课程资源、教师培训、智慧教学工具等支持",
+                    "results": "累计覆盖超过100所乡村学校，培训乡村教师超过2000人次，受益学生超过5万人",
+                    "category": "教育公平/乡村振兴"
+                },
+                {
+                    "id": "case-010",
+                    "title": "云南澜沧县教育帮扶项目",
+                    "date": "2023-2025",
+                    "partner": "云南澜沧拉祜族自治县教育局",
+                    "content": "响应国家乡村振兴战略，为澜沧县提供全方位教育信息化支持，包括智慧校园建设、教师培训、AI课程捐赠等",
+                    "results": "建成多个智慧教室示范点，培训当地教师500余人次，惠及大凉山师生超过1.5万人",
+                    "category": "教育公平/乡村振兴"
+                },
+                {
+                    "id": "case-011",
+                    "title": "腾讯教师培训计划",
+                    "date": "2024",
+                    "partner": "全国多省市教育局、师范院校",
+                    "content": "面向中小学教师的信息化教学能力提升培训项目，涵盖AI教学应用、数字化课程设计、智慧教学工具使用等内容",
+                    "results": "累计培训教师超过10万人次，覆盖30个省份，参训教师信息化教学能力显著提升",
+                    "category": "教师发展/培训"
+                },
+                {
+                    "id": "case-012",
+                    "title": "北京师范大学未来教育创新中心合作",
+                    "date": "2024",
+                    "partner": "北京师范大学",
+                    "content": "与北师大未来教育高精尖创新中心建立战略合作，围绕教育人工智能、学习科学、教育大数据等前沿领域开展联合研究",
+                    "results": "联合发表多篇高水平学术论文，共同申请多项教育技术专利，联合培养研究生20余名",
+                    "category": "科研合作/高等教育"
+                },
+                {
+                    "id": "case-013",
+                    "title": "上海市中小学AI课程普及项目",
+                    "date": "2024",
+                    "partner": "上海市教委",
+                    "content": "支持上海市中小学人工智能课程普及工作，提供课程资源、教师培训、教学平台等全方位支持",
+                    "results": "已覆盖上海市超过500所中小学，培训AI课程教师2000余人，累计开课超过10000课时，受益学生超过30万人",
+                    "category": "K12/课程普及"
+                },
+                {
+                    "id": "case-014",
+                    "title": "清华大学-腾讯联合研究中心",
+                    "date": "2023",
+                    "partner": "清华大学",
+                    "content": "在人工智能、大数据、云计算等前沿技术领域建立联合研究中心，开展基础研究和应用研究，推动产学研深度融合",
+                    "results": "联合承担国家级科研项目5项，发表顶会论文20余篇，申请发明专利30余项，联合培养博士硕士研究生40余人",
+                    "category": "科研合作/联合研究"
+                },
+                {
+                    "id": "case-015",
+                    "title": "浙江大学智慧校园建设项目",
+                    "date": "2024",
+                    "partner": "浙江大学",
+                    "content": "为浙江大学提供智慧校园整体解决方案，包括统一身份认证、智能教务管理、一站式服务平台、校园大数据分析等",
+                    "results": "建成覆盖全校师生的智慧校园平台，日均活跃用户超过5万人，办事效率提升60%以上，获评全国高校智慧校园建设标杆案例",
+                    "category": "智慧校园/高校信息化"
+                },
+                {
+                    "id": "case-016",
+                    "title": "华东师范大学教师教育创新项目",
+                    "date": "2024",
+                    "partner": "华东师范大学",
+                    "content": "与华东师大合作开展教师教育创新实践，利用AI技术赋能师范生培养，建设虚拟仿真实训平台、智能教学诊断系统",
+                    "results": "建成国内领先的教师教育虚拟仿真实验室，师范生教学能力评估通过率提升25%，相关成果获得省级教学成果奖",
+                    "category": "师范教育/教师培养"
+                },
+                {
+                    "id": "case-017",
+                    "title": "腾讯AI编程公益活动",
+                    "date": "2023-2025",
+                    "partner": "全国青少年发展基金会、多省市青少年宫",
+                    "content": "面向欠发达地区青少年开展的AI编程公益项目，免费捐赠编程课程、教学平台、师资培训等资源",
+                    "results": "累计覆盖中西部地区超过200所学校，捐赠课程资源价值超过500万元，受益学生超过10万人",
+                    "category": "公益/教育公平"
+                },
+                {
+                    "id": "case-018",
+                    "title": "四川大凉山教育帮扶行动",
+                    "date": "2024",
+                    "partner": "四川省凉山州教育局",
+                    "content": "深入四川大凉山地区开展教育帮扶，为当地学校建设信息化教学环境，捐赠人工智能教育设备和课程，培训当地教师",
+                    "results": "建成10个智慧教室示范点，培训当地教师300余人，捐赠AI教育设备价值200余万元",
+                    "category": "教育公平/乡村振兴"
+                },
+                {
+                    "id": "case-019",
+                    "title": "香港高校AI人才培养合作",
+                    "date": "2024",
+                    "partner": "香港城市大学、香港科技大学",
+                    "content": "与香港高校开展AI人才培养合作，共同开发课程、组织实训项目、举办技术交流活动，促进粤港澳大湾区教育协同发展",
+                    "results": "联合培养AI人才超过200人，举办技术交流活动10余场，促进两地师生互动交流",
+                    "category": "国际合作/港澳"
+                },
+                {
+                    "id": "case-020",
+                    "title": "腾讯犀牛鸟开源人才培养计划",
+                    "date": "2023-2025",
+                    "partner": "全国多所高校",
+                    "content": "面向高校学生的开源人才培养计划，通过开源基础课程、开源项目实践、导师指导等方式，培养高校学生的开源贡献能力",
+                    "results": "累计覆盖超过100所高校，培养开源人才超过5000人，学生向腾讯开源项目贡献代码超过10万行",
+                    "category": "开源/人才培养"
+                },
+                {
+                    "id": "case-021",
+                    "title": "全国青少年人工智能创新挑战赛",
+                    "date": "2024",
+                    "partner": "中国少年儿童发展服务中心",
+                    "content": "支持举办全国性青少年AI创新挑战赛，为赛事提供技术支持、平台支撑和评审服务",
+                    "results": "赛事吸引全国超过10万青少年参与，产生优秀创新作品5000余件，发现和培养了一批青少年AI创新人才",
+                    "category": "竞赛活动/青少年"
+                },
+                {
+                    "id": "case-022",
+                    "title": "武汉理工大学智慧教室建设",
+                    "date": "2024",
+                    "partner": "武汉理工大学",
+                    "content": "为武汉理工大学建设一批智慧教室，配备智能录播、互动教学、AI学情分析等功能，支持混合式教学和翻转课堂",
+                    "results": "建成智慧教室50余间，覆盖主要教学楼，师生满意度超过90%，获评湖北省高校智慧教学示范案例",
+                    "category": "智慧教室/教学环境"
+                },
+                {
+                    "id": "case-023",
+                    "title": "青少年AI伦理与安全教育项目",
+                    "date": "2024",
+                    "partner": "中国青少年研究中心",
+                    "content": "面向青少年开展AI伦理与安全教育，帮助青少年正确认识AI技术，建立负责任的AI使用意识，培养AI时代的数字公民素养",
+                    "results": "开发AI伦理课程10余门，覆盖中小学生超过50万人，相关成果被多地教育部门采纳推广",
+                    "category": "AI伦理/安全教育"
+                },
+                {
+                    "id": "case-024",
+                    "title": "腾讯教育开源生态建设",
+                    "date": "2023-2025",
+                    "partner": "开源社区、多所高校",
+                    "content": "推动教育技术开源生态建设，开源多款教育工具和产品，与社区共建教育技术基础设施，降低教育信息化门槛",
+                    "results": "开源项目累计获得Star超过10万，贡献者超过1000人，多个项目成为教育技术领域的主流开源方案",
+                    "category": "开源/生态建设"
                 }
             ],
+            "topic_case_mapping": {
+                "description": "演讲主题与推荐案例的智能映射配置，用于实现案例多样性",
+                "matchingRules": [
+                    {
+                        "id": "rule-k12",
+                        "name": "K12基础教育",
+                        "keywords": ["K12", "中小学", "小学", "初中", "高中", "基础教育", "青少年", "课后服务", "双减", "素质教育"],
+                        "recommendedCases": ["case-004", "case-011", "case-012", "case-013", "case-021"],
+                        "priority": 1
+                    },
+                    {
+                        "id": "rule-higher-edu",
+                        "name": "高等教育",
+                        "keywords": ["高校", "大学", "本科", "研究生", "高等教育", "双一流", "985", "211", "学科建设"],
+                        "recommendedCases": ["case-001", "case-002", "case-003", "case-005", "case-014", "case-015"],
+                        "priority": 1
+                    },
+                    {
+                        "id": "rule-vocational",
+                        "name": "职业教育",
+                        "keywords": ["职业", "高职", "中职", "技校", "技能人才", "产教融合", "产业学院", "工匠", "实训"],
+                        "recommendedCases": ["case-006", "case-007", "case-008"],
+                        "priority": 1
+                    },
+                    {
+                        "id": "rule-lifelong",
+                        "name": "终身教育",
+                        "keywords": ["终身", "继续教育", "成人教育", "开放大学", "老年教育", "社区教育", "学习型社会"],
+                        "recommendedCases": ["case-005", "case-009", "case-010"],
+                        "priority": 1
+                    },
+                    {
+                        "id": "rule-teacher",
+                        "name": "教师发展",
+                        "keywords": ["教师", "师资", "教学能力", "教师培训", "师范", "教学创新", "备课", "教研"],
+                        "recommendedCases": ["case-011", "case-012", "case-013", "case-016"],
+                        "priority": 1
+                    },
+                    {
+                        "id": "rule-rural",
+                        "name": "教育公平与乡村教育",
+                        "keywords": ["乡村", "农村", "教育公平", "偏远", "支教", "普惠", "均衡", "帮扶", "乡村振兴"],
+                        "recommendedCases": ["case-009", "case-010", "case-017", "case-018"],
+                        "priority": 1
+                    },
+                    {
+                        "id": "rule-international",
+                        "name": "国际教育合作",
+                        "keywords": ["国际", "海外", "留学", "一带一路", "港澳", "国际化", "全球", "跨境"],
+                        "recommendedCases": ["case-003", "case-019"],
+                        "priority": 2
+                    },
+                    {
+                        "id": "rule-research",
+                        "name": "科研与创新",
+                        "keywords": ["科研", "学术", "研究", "实验室", "论文", "期刊", "课题", "创新", "前沿"],
+                        "recommendedCases": ["case-001", "case-002", "case-014", "case-020"],
+                        "priority": 1
+                    },
+                    {
+                        "id": "rule-industry",
+                        "name": "行业垂直领域",
+                        "keywords": ["法律", "医学", "金融", "工程", "交通", "海事", "能源", "垂直", "专业"],
+                        "recommendedCases": ["case-002", "case-006", "case-007", "case-008"],
+                        "priority": 1
+                    },
+                    {
+                        "id": "rule-competition",
+                        "name": "竞赛与活动",
+                        "keywords": ["竞赛", "大赛", "挑战", "创新赛", "编程", "黑客松", "活动", "节", "嘉年华"],
+                        "recommendedCases": ["case-003", "case-004", "case-011", "case-021"],
+                        "priority": 2
+                    },
+                    {
+                        "id": "rule-campus",
+                        "name": "智慧校园",
+                        "keywords": ["校园", "数字化", "信息化", "智慧校园", "一网通办", "管理", "服务", "安全"],
+                        "recommendedCases": ["case-005", "case-015", "case-022"],
+                        "priority": 2
+                    },
+                    {
+                        "id": "rule-ai-ethics",
+                        "name": "AI伦理与安全",
+                        "keywords": ["伦理", "安全", "隐私", "保护", "规范", "治理", "责任", "可信", "绿色"],
+                        "recommendedCases": ["case-004", "case-023"],
+                        "priority": 2
+                    },
+                    {
+                        "id": "rule-open-source",
+                        "name": "开源与生态",
+                        "keywords": ["开源", "开放", "生态", "社区", "共建", "共享", "协作", "贡献"],
+                        "recommendedCases": ["case-003", "case-020", "case-024"],
+                        "priority": 2
+                    }
+                ],
+                "diversitySettings": {
+                    "maxCasesPerTopic": 3,
+                    "minCaseVariety": 2,
+                    "avoidRepetition": true,
+                    "rotationEnabled": true
+                }
+            },
             "hot_topics": [
                 {
                     "topic": "教育数字化转型",
@@ -240,19 +502,21 @@ class RAGEngine {
     }
 
     /**
-     * 主题-案例智能匹配算法
+     * 主题-案例智能匹配算法（支持多样性和轮换）
      * 根据演讲主题自动选择最相关的案例
      * @param {string} query - 演讲主题/查询
+     * @param {number} maxCases - 最多返回的案例数量
      * @returns {Array} - 推荐案例ID列表
      */
-    matchCasesByTopic(query) {
+    matchCasesByTopic(query, maxCases = 3) {
         if (!this.knowledgeBase || !this.knowledgeBase.topic_case_mapping) {
             console.log('未找到主题映射配置，使用默认案例');
-            return ['case-005', 'case-004']; // 默认返回最通用的案例
+            return this.selectDiverseCases(['case-005', 'case-004', 'case-001', 'case-014', 'case-015'], maxCases);
         }
 
         const mapping = this.knowledgeBase.topic_case_mapping;
         const rules = mapping.matchingRules || [];
+        const diversitySettings = mapping.diversitySettings || { maxCasesPerTopic: 3, minCaseVariety: 2 };
         
         // 提取查询中的关键词（简单分词）
         const queryLower = query.toLowerCase();
@@ -296,25 +560,110 @@ class RAGEngine {
             return a.priority - b.priority;
         });
         
-        // 记录匹配结果供调试
-        console.log('匹配结果排序:', matchScores.map(m => ({
-            theme: m.rule.theme,
-            score: m.score,
-            priority: m.priority,
-            matched: m.matchedKeywords
-        })));
+        // 收集所有匹配的主题的推荐案例（实现多样性）
+        let allRecommendedCases = [];
+        const usedCategories = new Set();
         
-        // 选择最佳匹配
+        // 首先添加最佳匹配的案例
         const bestMatch = matchScores[0];
-        
         if (bestMatch && bestMatch.score > 0) {
-            console.log(`最佳匹配主题: ${bestMatch.rule.theme}, 推荐案例:`, bestMatch.rule.recommendedCases);
-            return bestMatch.rule.recommendedCases;
+            console.log(`最佳匹配主题: ${bestMatch.rule.name}, 匹配度: ${bestMatch.score}`);
+            allRecommendedCases.push(...bestMatch.rule.recommendedCases);
+            
+            // 记录已使用的类别
+            bestMatch.rule.recommendedCases.forEach(caseId => {
+                const caseItem = this.getCaseById(caseId);
+                if (caseItem && caseItem.category) {
+                    usedCategories.add(caseItem.category.split('/')[0]);
+                }
+            });
         }
         
-        // 无匹配时返回默认案例
-        console.log('未找到匹配主题，使用默认案例');
-        return ['case-005', 'case-004'];
+        // 添加其他匹配的推荐案例（确保多样性）
+        for (let i = 1; i < matchScores.length && allRecommendedCases.length < maxCases * 2; i++) {
+            const match = matchScores[i];
+            if (match.score > 0) {
+                // 检查是否有新类别的案例
+                const newCategoryCases = match.rule.recommendedCases.filter(caseId => {
+                    const caseItem = this.getCaseById(caseId);
+                    if (!caseItem || !caseItem.category) return true;
+                    const mainCategory = caseItem.category.split('/')[0];
+                    return !usedCategories.has(mainCategory);
+                });
+                
+                if (newCategoryCases.length > 0) {
+                    allRecommendedCases.push(...newCategoryCases);
+                    // 更新已使用类别
+                    newCategoryCases.forEach(caseId => {
+                        const caseItem = this.getCaseById(caseId);
+                        if (caseItem && caseItem.category) {
+                            usedCategories.add(caseItem.category.split('/')[0]);
+                        }
+                    });
+                }
+            }
+        }
+        
+        // 去重
+        allRecommendedCases = [...new Set(allRecommendedCases)];
+        
+        if (allRecommendedCases.length > 0) {
+            console.log('合并推荐案例(多样性优化):', allRecommendedCases);
+            return this.selectDiverseCases(allRecommendedCases, maxCases);
+        }
+        
+        // 无匹配时返回默认案例（多样化选择）
+        console.log('未找到匹配主题，使用多样化默认案例');
+        return this.selectDiverseCases([
+            'case-005', 'case-004', 'case-001', 'case-014', 'case-015', 
+            'case-011', 'case-006', 'case-009'
+        ], maxCases);
+    }
+    
+    /**
+     * 根据ID获取案例详情
+     */
+    getCaseById(caseId) {
+        if (!this.knowledgeBase || !this.knowledgeBase.cases) return null;
+        return this.knowledgeBase.cases.find(c => c.id === caseId);
+    }
+    
+    /**
+     * 选择多样化的案例
+     * 确保返回的案例来自不同类别
+     */
+    selectDiverseCases(caseIds, maxCases) {
+        if (!caseIds || caseIds.length === 0) return [];
+        
+        const selected = [];
+        const usedCategories = new Set();
+        
+        // 首先选择不同类别的案例
+        for (const caseId of caseIds) {
+            if (selected.length >= maxCases) break;
+            
+            const caseItem = this.getCaseById(caseId);
+            if (!caseItem) continue;
+            
+            const category = caseItem.category || '通用';
+            const mainCategory = category.split('/')[0];
+            
+            // 优先选择不同类别的案例
+            if (!usedCategories.has(mainCategory)) {
+                selected.push(caseId);
+                usedCategories.add(mainCategory);
+            }
+        }
+        
+        // 如果还有名额，补充其他案例
+        for (const caseId of caseIds) {
+            if (selected.length >= maxCases) break;
+            if (!selected.includes(caseId)) {
+                selected.push(caseId);
+            }
+        }
+        
+        return selected;
     }
 
     /**
@@ -349,7 +698,25 @@ class RAGEngine {
             'case-003': '适合编程教育、AI Coding、高校人才培养主题',
             'case-004': '适合K12教育、AIGC创作、青少年AI素养主题',
             'case-005': '适合智能体应用、高校生态建设、终身教育主题',
-            'case-006': '适合高校推广、教育生态建设、产教融合主题'
+            'case-006': '适合产教融合、特色人才培养、高职教育主题',
+            'case-007': '适合职业教育、产业学院、数字文创人才培养主题',
+            'case-008': '适合技能培训、云计算认证、高职就业导向主题',
+            'case-009': '适合教育公平、乡村教育、公益帮扶主题',
+            'case-010': '适合乡村振兴、边疆教育、民族地区教育主题',
+            'case-011': '适合教师培训、信息化教学能力提升、师资建设主题',
+            'case-012': '适合教育科研、学习科学、教育大数据研究主题',
+            'case-013': '适合K12课程普及、区域教育信息化、政策落地主题',
+            'case-014': '适合顶尖高校合作、前沿技术研究、产学研融合主题',
+            'case-015': '适合智慧校园、高校信息化、数字治理主题',
+            'case-016': '适合师范教育、教师培养、教学能力实训主题',
+            'case-017': '适合公益项目、欠发达地区教育、编程普及主题',
+            'case-018': '适合深度帮扶、边远地区教育、彝族地区教育主题',
+            'case-019': '适合港澳合作、国际化教育、大湾区教育协同主题',
+            'case-020': '适合开源教育、工程实践、社区贡献主题',
+            'case-021': '适合青少年竞赛、创新人才培养、科技活动主题',
+            'case-022': '适合智慧教室、教学环境改造、混合式教学主题',
+            'case-023': '适合AI伦理教育、数字素养、安全教育主题',
+            'case-024': '适合开源生态、技术共建、社区协作主题'
         };
         return notes[caseId] || '';
     }
