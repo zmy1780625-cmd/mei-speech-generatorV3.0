@@ -1,0 +1,420 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "lastUpdated": "2025-03-06",
+    "description": "腾讯教育AI应用案例库 - 2024-2025年最新实践",
+    "totalCases": 35
+  },
+  "cases": [
+    {
+      "id": "case-llm-001",
+      "category": "AI大模型/教育大模型应用",
+      "title": "河南豫教大模型",
+      "partner": "河南省教育厅",
+      "type": "K12教育",
+      "description": "面向全省中小学打造教师助理、学生助手，上线河南省中小学智慧教育平台",
+      "deployment": "先期落地郑州、洛阳等重点中小学",
+      "metrics": {
+        "accuracy": "90%+",
+        "satisfaction": "90%+",
+        "scenarios": ["百科问答", "教学辅助"]
+      },
+      "tags": ["大模型", "K12", "教师助手", "智慧教育平台"]
+    },
+    {
+      "id": "case-llm-002",
+      "category": "AI大模型/教育大模型应用",
+      "title": "润泽园教育历史人物时空对话",
+      "partner": "润泽园教育",
+      "type": "素质教育",
+      "description": "通过TRTC、ASR、TTS、数智人+混元大模型，实现王阳明数智人跨时空授课",
+      "features": ["数智人技术", "实时音视频", "跨时空互动"],
+      "futurePlan": "将在润泽园App搭载阳明先生智能体",
+      "tags": ["数智人", "混元大模型", "传统文化", "素质教育"]
+    },
+    {
+      "id": "case-llm-003",
+      "category": "AI大模型/教育大模型应用",
+      "title": "同济大学Prof.Lou智能体",
+      "partner": "同济大学",
+      "type": "高等教育",
+      "description": "基于娄教授公开资料打造设计学科专家智能体，可解答设计专业问题",
+      "value": "实现学科大模型落地，打造学科专家智能体标杆",
+      "tags": ["学科大模型", "专家智能体", "设计教育", "高等教育"]
+    },
+    {
+      "id": "case-llm-004",
+      "category": "AI大模型/教育大模型应用",
+      "title": "南京航空航天大学/深圳理工大学AI迎新助手",
+      "partner": "南京航空航天大学、深圳理工大学",
+      "type": "高等教育",
+      "description": "基于RAG知识检索增强能力，为上万新生提供校园生活、设施、科研资源等问答服务",
+      "features": ["RAG检索增强", "多模态解答", "支持文字、图片、地图"],
+      "coverage": "上万新生",
+      "tags": ["RAG", "迎新助手", "智能问答", "高等教育"]
+    },
+    {
+      "id": "case-llm-005",
+      "category": "AI大模型/教育大模型应用",
+      "title": "上海交通大学机械动力学院数智教师",
+      "partner": "上海交通大学",
+      "type": "高等教育",
+      "description": "利用老师数字分身制作虚拟教研视频，实现7*24小时学生服务",
+      "value": "提升教学视频录制效率，实现全天候教学服务",
+      "tags": ["数智教师", "数字分身", "虚拟教研", "高等教育"]
+    },
+    {
+      "id": "case-llm-006",
+      "category": "AI大模型/教育大模型应用",
+      "title": "作文智能批改",
+      "partner": "多家教育科技企业",
+      "type": "K12教育",
+      "description": "依托混元多模态模型hunyuan-vision，实现作文智能批改",
+      "metrics": {
+        "processingTime": "8~10秒/篇",
+        "accuracy": "90%+",
+        "comparison": "效率优于GPT4"
+      },
+      "tags": ["混元大模型", "作文批改", "多模态", "K12"]
+    },
+    {
+      "id": "case-computing-001",
+      "category": "腾讯云智算平台/算力服务",
+      "title": "在线编程客户AI绘画直播课",
+      "partner": "在线编程教育机构",
+      "type": "素质教育",
+      "description": "为2000+学生实现15秒内实时生图，支持AI绘画直播课",
+      "technicalSolution": ["托管ComfyUI", "智能负载均衡", "TACO推理加速"],
+      "optimization": {
+        "before": "27秒",
+        "after": "15秒内",
+        "improvement": "压缩生图时间"
+      },
+      "features": ["内置合规审核", "实时生图"],
+      "scale": "2000+学生",
+      "tags": ["智算平台", "AI绘画", "实时生成", "TACO加速"]
+    },
+    {
+      "id": "case-ai-teacher-001",
+      "category": "AI教师/数智人/虚拟教学",
+      "title": "英语口语数智教学",
+      "partner": "教育机构",
+      "type": "语言教育",
+      "description": "结合数智人形象（真人/2D/3D）实现口语对话练习",
+      "features": [
+        "基于历史对话针对性强化",
+        "多维度评分查缺补漏",
+        "支持真人/2D/3D数智人形象"
+      ],
+      "tags": ["数智人", "英语口语", "AI教学", "语言教育"]
+    },
+    {
+      "id": "case-ai-teacher-002",
+      "category": "AI教师/数智人/虚拟教学",
+      "title": "腾讯会议+AI线下课堂升级",
+      "partner": "多所高校",
+      "type": "高等教育",
+      "description": "通过天籁分布式麦克风解决混响/噪声，AI小助手规整授课语言、提炼课程重点",
+      "features": [
+        "天籁分布式麦克风解决混响噪声",
+        "AI小助手规整授课语言",
+        "17种语言实时翻译字幕",
+        "学科专业名词识别精准"
+      ],
+      "tags": ["腾讯会议", "AI课堂", "实时翻译", "高等教育"]
+    },
+    {
+      "id": "case-platform-001",
+      "category": "教育智能体平台/高校合作",
+      "title": "高校智能体平台合作",
+      "partner": "江苏开放大学、同济大学、上海海事大学、南京航空航天大学",
+      "type": "高等教育",
+      "description": "共建校级/院级智能体平台，覆盖教学、管理、科研等场景",
+      "coverage": ["教学场景", "管理场景", "科研场景"],
+      "partners": [
+        {"name": "江苏开放大学", "scale": "20万师生"},
+        {"name": "同济大学", "focus": "设计学科智能体"},
+        {"name": "上海海事大学", "focus": "海商法大模型"},
+        {"name": "南京航空航天大学", "focus": "AI迎新助手"}
+      ],
+      "tags": ["智能体平台", "高校合作", "教学管理", "科研"]
+    },
+    {
+      "id": "case-platform-002",
+      "category": "教育智能体平台/高校合作",
+      "title": "高校赛事支撑",
+      "partner": "清华大学、北京大学、上海交通大学、中山大学等",
+      "type": "高等教育",
+      "description": "为高校举办AI赛事，助力沉淀优秀智能体应用",
+      "results": "沉淀上百个优秀智能体应用",
+      "partners": ["清华大学", "北京大学", "上海交通大学", "中山大学"],
+      "tags": ["AI赛事", "高校合作", "智能体应用", "产教融合"]
+    },
+    {
+      "id": "case-aigc-001",
+      "category": "AIGC教育2.0/青少年教育",
+      "title": "青少年AIGC创作工坊落地",
+      "productNature": "腾讯自研产品",
+      "partner": "使用学校：北京师范大学附属中学、首师大子期实验中学、杭锦旗龙子心小学等（非合作开发方）",
+      "type": "K12教育",
+      "description": "腾讯自主研发的青少年AIGC创作平台，提供AI生文、AI绘画、AI视频、AI建模等创作工具",
+      "metrics": {
+        "schools": "300+",
+        "teachersStudents": "5000+",
+        "works": "30000+"
+      },
+      "cooperationAreas": [
+        "北京师范大学附属中学",
+        "首师大子期实验中学",
+        "杭锦旗龙子心小学",
+        "乌镇青少年科技嘉年华",
+        "横琴粤澳深度合作区",
+        "鄂尔多斯市"
+      ],
+      "launchDate": "2025-08-19",
+      "tags": ["AIGC", "青少年教育", "创作工坊", "K12"]
+    },
+    {
+      "id": "case-aigc-002",
+      "category": "AIGC教育2.0/青少年教育",
+      "title": "广州市中小学AI课程普及",
+      "partner": "广州市教育局",
+      "type": "K12教育",
+      "description": "基于游戏科技打造的青少年人工智能课程，应用于广州市1-8年级人工智能课程教学",
+      "features": ["火星场景", "企鹅岛场景", "图形化编程"],
+      "coverage": "广州市1-8年级",
+      "tags": ["AI课程", "游戏化教学", "编程教育", "K12"]
+    },
+    {
+      "id": "case-aigc-003",
+      "category": "AIGC教育2.0/青少年教育",
+      "title": "腾讯扣叮-元梦教育版",
+      "partner": "中小学教育机构",
+      "type": "K12教育",
+      "description": "3D数字创作平台，搭载混元大模型，支持3D场景创作、AIGC素材生成",
+      "applications": ["中小学数字创作", "AI教育", "编程学习"],
+      "features": ["3D场景创作", "AIGC素材生成", "混元大模型"],
+      "tags": ["扣叮", "元梦", "3D创作", "AIGC", "K12"]
+    },
+    {
+      "id": "case-enterprise-001",
+      "category": "腾讯云技术/工具服务教育企业",
+      "title": "英孚英语学员转化提升",
+      "partner": "英孚英语",
+      "type": "语言教育",
+      "description": "通过腾讯技术实现学员转化量提升",
+      "value": "提升学员转化量",
+      "tags": ["营销技术", "学员转化", "语言教育"]
+    },
+    {
+      "id": "case-enterprise-002",
+      "category": "腾讯云技术/工具服务教育企业",
+      "title": "VIPKID外呼线路优化",
+      "partner": "VIPKID",
+      "type": "在线教育",
+      "description": "借助腾讯营销外呼解决外呼线路部署周期长、运营成本高的问题",
+      "value": "降低部署周期，减少运营成本",
+      "tags": ["营销外呼", "线路优化", "在线教育"]
+    },
+    {
+      "id": "case-enterprise-003",
+      "category": "腾讯云技术/工具服务教育企业",
+      "title": "小鹅通教学互动升级",
+      "partner": "小鹅通",
+      "type": "在线教育",
+      "description": "腾讯提供低成本教学互动工具，打造优质音视频上课体验；小鹅通+元宝合作",
+      "features": [
+        "低成本教学互动工具",
+        "优质音视频上课体验",
+        "课程内容智能提取",
+        "逐字稿/思维导图自动生成",
+        "内容深度搜索"
+      ],
+      "cooperation": "小鹅通+腾讯元宝",
+      "tags": ["教学互动", "音视频", "AI提取", "在线教育"]
+    },
+    {
+      "id": "case-enterprise-004",
+      "category": "腾讯云技术/工具服务教育企业",
+      "title": "希望美术线上教学优化",
+      "partner": "希望美术",
+      "type": "素质教育",
+      "description": "腾讯音视频互动能力解决线上美术教学画质问题",
+      "value": "解决线上美术教学画质问题，提供丰富的线上教学互动方案",
+      "tags": ["音视频", "美术教育", "线上教学", "素质教育"]
+    },
+    {
+      "id": "case-enterprise-005",
+      "category": "腾讯云技术/工具服务教育企业",
+      "title": "作业帮技术框架升级",
+      "partner": "作业帮",
+      "type": "K12教育",
+      "description": "腾讯联合作业帮完成技术框架升级",
+      "value": "降低企业运营成本",
+      "tags": ["技术框架", "成本优化", "K12"]
+    },
+    {
+      "id": "case-enterprise-006",
+      "category": "腾讯云技术/工具服务教育企业",
+      "title": "新东方阅读空间开发支持",
+      "partner": "新东方",
+      "type": "素质教育",
+      "description": "为新东方阅读空间自习室提供便捷开发能力",
+      "value": "减少开发工作量和成本",
+      "tags": ["开发支持", "阅读空间", "素质教育"]
+    },
+    {
+      "id": "case-enterprise-007",
+      "category": "腾讯云技术/工具服务教育企业",
+      "title": "咕泡/风变教育Cloud Studio合作",
+      "partner": "咕泡教育、风变教育",
+      "type": "职业教育",
+      "description": "腾讯云Cloud Studio在线IDE平台提供AI框架、GPU资源调度",
+      "value": "助力AI教学与教研效率提升",
+      "features": ["在线IDE", "AI框架", "GPU资源调度"],
+      "tags": ["Cloud Studio", "AI教学", "GPU", "职业教育"]
+    },
+    {
+      "id": "case-training-001",
+      "category": "高校AI/科研实训合作",
+      "title": "腾讯开悟多智能体强化学习平台",
+      "partner": "清华大学、电子科技大学、四川大学、北京大学",
+      "type": "高等教育",
+      "description": "多智能体强化学习平台在高校开课，覆盖理论学习、实验作业、毕业设计等场景",
+      "partners": ["清华大学", "电子科技大学", "四川大学", "北京大学"],
+      "scenarios": ["理论学习", "实验作业", "毕业设计"],
+      "events": "全球性AI赛事",
+      "tags": ["开悟平台", "强化学习", "多智能体", "高等教育"]
+    },
+    {
+      "id": "case-training-002",
+      "category": "高校AI/科研实训合作",
+      "title": "深圳大学智慧养鹅实践项目",
+      "partner": "深圳大学",
+      "type": "高等教育",
+      "description": "腾讯与深圳大学合作，将AI技术应用于实践教学",
+      "value": "形成产学研结合案例",
+      "tags": ["AI实践", "产学研", "智慧农业", "高等教育"]
+    },
+    {
+      "id": "case-training-003",
+      "category": "高校AI/科研实训合作",
+      "title": "985/211高校学科大模型共建",
+      "partner": "985、211高校、科研机构",
+      "type": "高等教育",
+      "description": "腾讯提供AI底层算力平台和工具，与高校、科研机构共建各学科大模型",
+      "value": "助力科研与教学",
+      "support": ["AI底层算力平台", "AI工具"],
+      "tags": ["学科大模型", "985/211", "科研合作", "高等教育"]
+    },
+    {
+      "id": "case-ecosystem-001",
+      "category": "腾讯教育生态/产品融合",
+      "title": "腾讯会议+腾讯乐享教学闭环",
+      "partner": "多所高校",
+      "type": "高等教育",
+      "description": "打通课前（乐享AI知识库备课）-课中（会议教育版沉浸式互动）-课后（内容沉淀、复用）的教学知识生产与沉淀闭环",
+      "workflow": [
+        {"stage": "课前", "tool": "腾讯乐享", "function": "AI知识库备课"},
+        {"stage": "课中", "tool": "腾讯会议教育版", "function": "沉浸式互动"},
+        {"stage": "课后", "tool": "腾讯乐享", "function": "内容沉淀、复用"}
+      ],
+      "value": "教学知识生产与沉淀闭环",
+      "tags": ["腾讯会议", "腾讯乐享", "教学闭环", "知识沉淀"]
+    },
+    {
+      "id": "case-ecosystem-002",
+      "category": "腾讯教育生态/产品融合",
+      "title": "LingoACE智能约排课系统",
+      "partner": "LingoACE",
+      "type": "在线教育",
+      "description": "接入腾讯云智能体开发平台，实现排课流程自动化、智能化",
+      "technicalSolution": ["RAG", "WorkFlow", "Multi-Agent框架"],
+      "value": "提升教务管理效率，排课流程自动化、智能化",
+      "tags": ["智能体平台", "排课系统", "教务管理", "在线教育"]
+    },
+    {
+      "id": "case-vocational-001",
+      "category": "全真互联/云桌面/职业教育",
+      "title": "头部职业教育企业云桌面合作",
+      "partner": "多家头部职业教育企业",
+      "type": "职业教育",
+      "description": "腾讯云桌面技术落地职业教育，实现老师远程查看学生实操、手把手教学",
+      "value": "打破地域瓶颈，实现远程实操教学",
+      "features": ["云桌面", "远程实操", "手把手教学"],
+      "tags": ["云桌面", "职业教育", "实操教学", "远程教学"]
+    },
+    {
+      "id": "case-vocational-002",
+      "category": "全真互联/云桌面/职业教育",
+      "title": "机床/视频剪辑/飞行员/驾校培训数字模拟",
+      "partner": "职业教育机构",
+      "type": "职业教育",
+      "description": "通过VR/AR、数字模拟技术实现职业教育实操训练",
+      "scenarios": ["机床操作", "视频剪辑", "飞行员培训", "驾校培训"],
+      "value": "解决传统师傅带徒弟的地域/实操限制",
+      "technologies": ["VR", "AR", "数字模拟"],
+      "tags": ["VR/AR", "数字模拟", "实操训练", "职业教育"]
+    },
+    {
+      "id": "case-sanhaoclass-001",
+      "category": "腾讯教育三好学堂生态合作",
+      "title": "三好学堂生态合作",
+      "partner": "翼鸥、考试星、联奕、云蝶、螳螂科技等11家教育科技企业",
+      "type": "教育生态",
+      "description": "与11家教育科技企业深度合作，共创教育大模型应用",
+      "partners": ["翼鸥", "考试星", "联奕", "云蝶", "螳螂科技"],
+      "totalPartners": 11,
+      "applications": "教育大模型应用",
+      "deployment": "各地教育局、院校、教育企业",
+      "tags": ["三好学堂", "教育生态", "大模型应用", "合作伙伴"]
+    },
+    {
+      "id": "case-overseas-001",
+      "category": "海外教育科技服务",
+      "title": "海外教育市场技术服务",
+      "partner": "Shopee、TikTok、华为终端",
+      "type": "海外市场",
+      "description": "依托腾讯云全球一套云能力，为跨国业务提供技术支撑；为东南亚等海外教育市场提供教育科技解决方案",
+      "technicalSupport": ["音视频", "云算力", "合规"],
+      "coverage": "东南亚等海外市场",
+      "partners": ["Shopee", "TikTok", "华为终端"],
+      "tags": ["海外市场", "全球云服务", "音视频", "合规"]
+    }
+  ],
+  "topic_mapping": {
+    "description": "案例主题映射，用于智能匹配",
+    "mappings": [
+      {
+        "theme": "AI大模型/教育大模型",
+        "keywords": ["大模型", "混元", "RAG", "学科大模型", "数智人", "智能批改"],
+        "caseIds": ["case-llm-001", "case-llm-002", "case-llm-003", "case-llm-004", "case-llm-005", "case-llm-006"]
+      },
+      {
+        "theme": "智能体平台/高校合作",
+        "keywords": ["智能体", "Agent", "高校合作", "赛事", "教学平台"],
+        "caseIds": ["case-platform-001", "case-platform-002"]
+      },
+      {
+        "theme": "AIGC/青少年教育",
+        "keywords": ["AIGC", "创作工坊", "青少年", "K12", "编程", "扣叮"],
+        "caseIds": ["case-aigc-001", "case-aigc-002", "case-aigc-003"]
+      },
+      {
+        "theme": "职业教育/技能培训",
+        "keywords": ["职业教育", "云桌面", "VR", "AR", "实操", "技能培训"],
+        "caseIds": ["case-vocational-001", "case-vocational-002"]
+      },
+      {
+        "theme": "科研实训/高校AI",
+        "keywords": ["开悟", "强化学习", "科研", "实训", "产学研"],
+        "caseIds": ["case-training-001", "case-training-002", "case-training-003"]
+      },
+      {
+        "theme": "教育企业技术服务",
+        "keywords": ["企业合作", "音视频", "云服务", "技术框架", "Cloud Studio"],
+        "caseIds": ["case-enterprise-001", "case-enterprise-002", "case-enterprise-003", "case-enterprise-004", "case-enterprise-005", "case-enterprise-006", "case-enterprise-007"]
+      }
+    ]
+  }
+}

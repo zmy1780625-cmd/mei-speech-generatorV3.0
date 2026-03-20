@@ -1,0 +1,19 @@
+{
+  "apis": {
+    "glm": {
+      "name": "GLM-4 Plus",
+      "baseURL": "https://open.bigmodel.cn/api/paas/v4",
+      "model": "glm-4-plus",
+      "status": "disconnected",
+      "lastTest": null
+    }
+  },
+  "settings": {
+    "defaultModel": "glm",
+    "autoTest": false,
+    "hideConfig": false,
+    "environment": "local",
+    "created": "2024-03-03T10:00:00.000Z",
+    "updated": "2026-03-03T06:20:03.779Z"
+  }
+}

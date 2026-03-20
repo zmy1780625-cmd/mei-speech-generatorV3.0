@@ -1,0 +1,51 @@
+# GitHub Pages 配置文件
+title: "晖总演讲稿生成器"
+description: "AI驱动的专业演讲稿生成工具 - GitHub Pages版，直接调用API无需后端"
+author: "杨晖演讲稿生成器团队"
+url: "https://your-username.github.io"
+baseurl: "/speech-generator"
+
+# 主题设置
+theme: minima
+
+# 插件
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# SEO 设置
+lang: zh-CN
+timezone: Asia/Shanghai
+
+# 社交媒体
+github_username: your-username
+
+# 构建设置
+markdown: kramdown
+highlighter: rouge
+permalink: pretty
+
+# 排除文件（不包含在GitHub Pages构建中）
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - server.js
+  - api/
+  - test-*.js
+  - "*.bat"
+  - vercel.json
+  - VERCEL_DEPLOY.md
+  - package.json
+  - api-config.json
+  - README.md
+
+# 包含文件
+include:
+  - _pages
+  - index-github-pages.html

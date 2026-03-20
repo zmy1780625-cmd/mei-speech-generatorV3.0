@@ -1,0 +1,35 @@
+{
+  "name": "speech-generator-vercel",
+  "version": "2.0.0",
+  "description": "晖总演讲稿生成器 - Vercel版",
+  "main": "index.html",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "vercel dev",
+    "build": "echo 'No build step required'",
+    "deploy": "vercel --prod",
+    "test": "node test-system.js",
+    "install-deps": "npm install"
+  },
+  "keywords": [
+    "speech",
+    "generator",
+    "ai",
+    "api",
+    "vercel",
+    "serverless"
+  ],
+  "author": "杨晖演讲稿生成器团队",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "vercel": "^32.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
