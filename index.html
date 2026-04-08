@@ -2794,7 +2794,7 @@ ${recommendedCases.length > 0 ? recommendedCases.map(c => `   - ${c.title}（${c
 ${recommendedCases.some(c => c.id && c.id.includes('lexiang')) ? `
    ✅ 本次案例来源：乐享CSIG教育空间实时搜索（${recommendedCases.filter(c => c.id && c.id.includes('lexiang')).length} 条来自乐享）` : ''}
 ${caseRandom === 'random' ? `
-   🎲 案例选择方式：从乐享搜索返回的结果中${enableRandomization ? '随机挑选' : '按匹配度排序挑选'}：` : ''}
+   🎲 案例选择方式：从乐享搜索返回的结果中随机挑选：` : ''}
 
    ⚠️ 案例使用原则：
    - 以上案例是系统从「乐享CSIG教育空间」实时搜索获取的真实项目数据
