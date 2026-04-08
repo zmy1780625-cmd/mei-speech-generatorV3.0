@@ -515,9 +515,9 @@ class RAGEngine {
 
     /**
      * 从乐享知识库获取数据
-     * 注：乐享MCP需要服务端支持，前端仅为模拟实现
+     * 通过后端API代理调用乐享MCP服务
      */
-    async fetchLexiangData() {
+    async fetchLexiangData(query = '腾讯教育 案例 产品') {
         // 检查是否配置了乐享MCP
         const mcpConfig = window.mcpConfig || {};
         if (!mcpConfig.lexiang || !mcpConfig.lexiang.enabled) {
@@ -526,19 +526,31 @@ class RAGEngine {
         }
         
         try {
-            // 尝试调用乐享MCP（需要服务端代理）
-            const response = await fetch('/api/lexiang/search', {
+            console.log('📚 正在调用乐享知识库API...');
+            
+            // 调用后端API代理
+            const response = await fetch('/api/lexiang', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
-                    spaceId: '103d710cda0b481dbee76ab7e8994c56',
-                    query: '腾讯教育 案例 产品'
+                    spaceId: mcpConfig.lexiang.spaceId || '103d710cda0b481dbee76ab7e8994c56',
+                    query: query,
+                    action: 'search',
+                    limit: 10
                 })
             });
             
             if (response.ok) {
                 const data = await response.json();
-                return data.results || [];
+                if (data.success && data.results && data.results.length > 0) {
+                    console.log(`✅ 乐享API返回 ${data.results.length} 条数据`);
+                    return data.results;
+                } else {
+                    console.log('乐享API返回空数据:', data.error || '未知原因');
+                }
+            } else {
+                const errorData = await response.json().catch(() => ({}));
+                console.log('乐享API调用失败:', response.status, errorData.error);
             }
         } catch (error) {
             console.log('乐享API调用失败:', error.message);
@@ -549,43 +561,139 @@ class RAGEngine {
     
     /**
      * 合并乐享数据到本地知识库
+     * 将乐享文档转换为知识库案例格式
      */
     mergeLexiangData(lexiangData) {
-        if (!this.knowledgeBase) return;
+        if (!this.knowledgeBase || !lexiangData || lexiangData.length === 0) return;
         
         // 标记乐享数据来源
         this.knowledgeBase.lexiangData = {
             lastUpdated: new Date().toISOString(),
             source: 'CSIG教育空间',
-            itemCount: lexiangData.length
+            itemCount: lexiangData.length,
+            items: lexiangData.map(item => ({
+                id: item.id,
+                title: item.title,
+                content: item.content || '',
+                source: item.source,
+                relevance: item.relevance || 0.8
+            }))
         };
         
-        // 这里可以添加数据合并逻辑
-        console.log(`已获取 ${lexiangData.length} 条乐享知识库数据`);
+        // 将乐享数据转换为知识库案例格式
+        const lexiangCases = lexiangData.map((item, index) => {
+            // 从乐享内容提取关键信息
+            const content = item.content || '';
+            const lines = content.split('\n').filter(l => l.trim());
+            
+            // 尝试提取合作伙伴
+            const partnerMatch = content.match(/合作伙伴[：:]\s*([^\n]+)/) || 
+                                 content.match(/与([^（(]+)（[^)]+）合作/) ||
+                                 content.match(/([^\s,，]+大学|[^\s,，]+学院)/);
+            const partner = partnerMatch ? partnerMatch[1].trim() : '腾讯教育生态';
+            
+            // 尝试提取成果描述
+            const resultMatch = content.match(/成果[：:]\s*([^\n]+)/) || 
+                               content.match(/实现了([^。]+)/) ||
+                               content.match(/覆盖([^。]+)/);
+            const results = resultMatch ? resultMatch[1].trim() : '推动教育数字化发展';
+            
+            return {
+                id: `lexiang-case-${index}`,
+                title: item.title || '教育合作项目',
+                date: item.updatedAt ? item.updatedAt.split('T')[0] : '2025',
+                partner: partner,
+                content: lines[0] || content.substring(0, 100) + '...',
+                results: results,
+                category: '乐享知识库/动态案例',
+                source: 'lexiang',
+                url: item.url || '',
+                relevance: item.relevance || 0.5
+            };
+        });
+        
+        // 合并到知识库cases数组
+        if (!this.knowledgeBase.cases) {
+            this.knowledgeBase.cases = [];
+        }
+        
+        // 过滤掉已存在的乐享案例（避免重复）
+        const existingIds = new Set(this.knowledgeBase.cases.map(c => c.id));
+        const newCases = lexiangCases.filter(c => !existingIds.has(c.id));
+        
+        // 添加新案例
+        this.knowledgeBase.cases.push(...newCases);
+        
+        console.log(`✅ 已合并 ${newCases.length} 条乐享案例到知识库（总计 ${this.knowledgeBase.cases.length} 条）`);
     }
 
     /**
-     * 主题-案例智能匹配算法（支持多样性和轮换）
-     * 根据演讲主题自动选择最相关的案例
+     * 初始化案例使用历史记录
+     */
+    initCaseHistory() {
+        if (!this.caseUsageHistory) {
+            this.caseUsageHistory = new Map(); // caseId -> 使用次数
+            this.recentlyUsedCases = []; // 最近使用的案例ID列表
+            this.maxHistorySize = 20; // 保留最近20次使用的案例
+        }
+    }
+
+    /**
+     * 记录案例使用
+     */
+    recordCaseUsage(caseIds) {
+        this.initCaseHistory();
+        
+        caseIds.forEach(caseId => {
+            // 更新使用次数
+            this.caseUsageHistory.set(caseId, (this.caseUsageHistory.get(caseId) || 0) + 1);
+            
+            // 添加到最近使用列表
+            this.recentlyUsedCases.unshift(caseId);
+        });
+        
+        // 限制历史记录大小
+        if (this.recentlyUsedCases.length > this.maxHistorySize) {
+            this.recentlyUsedCases = this.recentlyUsedCases.slice(0, this.maxHistorySize);
+        }
+    }
+
+    /**
+     * 打乱数组（Fisher-Yates洗牌算法）
+     */
+    shuffleArray(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    }
+
+    /**
+     * 主题-案例智能匹配算法（增强版：支持随机化、轮换和历史记录）
+     * 根据演讲主题自动选择最相关的案例，确保每次使用不同案例
      * @param {string} query - 演讲主题/查询
      * @param {number} maxCases - 最多返回的案例数量
+     * @param {boolean} enableRandomization - 是否启用随机化（默认true）
      * @returns {Array} - 推荐案例ID列表
      */
-    matchCasesByTopic(query, maxCases = 3) {
+    matchCasesByTopic(query, maxCases = 3, enableRandomization = true) {
+        this.initCaseHistory();
+        
         if (!this.knowledgeBase || !this.knowledgeBase.topic_case_mapping) {
-            console.log('未找到主题映射配置，使用默认案例');
-            return this.selectDiverseCases(['case-005', 'case-004', 'case-001', 'case-014', 'case-015'], maxCases);
+            console.log('未找到主题映射配置，使用随机默认案例');
+            return this.selectRandomCases(['case-005', 'case-004', 'case-001', 'case-014', 'case-015', 'case-011', 'case-006', 'case-009', 'case-020', 'case-012'], maxCases);
         }
 
         const mapping = this.knowledgeBase.topic_case_mapping;
         const rules = mapping.matchingRules || [];
-        const diversitySettings = mapping.diversitySettings || { maxCasesPerTopic: 3, minCaseVariety: 2 };
         
         // 提取查询中的关键词（简单分词）
         const queryLower = query.toLowerCase();
-        const queryWords = queryLower.split(/[\s,，.。!！?？;:；：""''（）()]+/);
+        const queryWords = queryLower.split(/[\s,，.。!！?？;:；：""''（）()]+/).filter(w => w.length > 1);
         
-        console.log('主题匹配分析:', query);
+        console.log('主题匹配分析:', query, '| 关键词:', queryWords.join(', '));
         
         // 计算每个规则的匹配度
         const matchScores = rules.map(rule => {
@@ -597,13 +705,15 @@ class RAGEngine {
                 const keywordLower = keyword.toLowerCase();
                 // 完全匹配得分更高
                 if (queryLower.includes(keywordLower)) {
-                    score += 3;
+                    score += 5;
                     matchedKeywords.push(keyword);
                 }
                 // 部分匹配
                 else if (queryWords.some(w => w.includes(keywordLower) || keywordLower.includes(w))) {
-                    score += 1;
-                    matchedKeywords.push(keyword);
+                    score += 2;
+                    if (!matchedKeywords.includes(keyword)) {
+                        matchedKeywords.push(keyword);
+                    }
                 }
             });
             
@@ -615,72 +725,143 @@ class RAGEngine {
             };
         });
         
-        // 按匹配度排序，匹配度相同按优先级排序
-        matchScores.sort((a, b) => {
-            if (b.score !== a.score) {
-                return b.score - a.score;
-            }
+        // 过滤出有匹配的规则，并按匹配度排序
+        const matchedRules = matchScores
+            .filter(m => m.score > 0)
+            .sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.priority - b.priority;
+            });
+        
+        console.log(`找到 ${matchedRules.length} 个匹配的主题规则`);
+        matchedRules.slice(0, 3).forEach((m, i) => {
+            console.log(`  匹配${i+1}: ${m.rule.name} (得分:${m.score}, 关键词:${m.matchedKeywords.join(',')})`);
+        });
+        
+        // 收集所有匹配的案例池
+        let candidateCasePool = [];
+        
+        matchedRules.forEach(match => {
+            match.rule.recommendedCases.forEach(caseId => {
+                const caseItem = this.getCaseById(caseId);
+                if (caseItem) {
+                    candidateCasePool.push({
+                        id: caseId,
+                        score: match.score,
+                        priority: match.priority,
+                        category: caseItem.category || '通用',
+                        title: caseItem.title
+                    });
+                }
+            });
+        });
+        
+        // 如果没有匹配到主题，使用所有案例作为候选池
+        if (candidateCasePool.length === 0) {
+            console.log('未找到匹配主题，使用全部案例池');
+            candidateCasePool = (this.knowledgeBase.cases || [])
+                .filter(c => c.id)
+                .map(c => ({
+                    id: c.id,
+                    score: 1,
+                    priority: 99,
+                    category: c.category || '通用',
+                    title: c.title
+                }));
+        }
+        
+        // 按分数排序，分数相同则按优先级排序
+        candidateCasePool.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
             return a.priority - b.priority;
         });
         
-        // 收集所有匹配的主题的推荐案例（实现多样性）
-        let allRecommendedCases = [];
+        // 去重（保留最高分的）
+        const seen = new Set();
+        const uniqueCandidates = [];
+        candidateCasePool.forEach(c => {
+            if (!seen.has(c.id)) {
+                seen.add(c.id);
+                uniqueCandidates.push(c);
+            }
+        });
+        
+        console.log(`候选案例池: ${uniqueCandidates.length} 个案例`);
+        
+        // 选择策略：多样化 + 随机化
+        const selectedCases = this.selectCasesWithDiversityAndRandomization(uniqueCandidates, maxCases, enableRandomization);
+        
+        // 记录本次使用的案例
+        this.recordCaseUsage(selectedCases);
+        
+        console.log('最终选中的案例:', selectedCases.join(', '));
+        return selectedCases;
+    }
+
+    /**
+     * 多样化 + 随机化的案例选择
+     */
+    selectCasesWithDiversityAndRandomization(candidates, maxCases, enableRandomization = true) {
+        if (candidates.length <= maxCases) {
+            return candidates.map(c => c.id);
+        }
+        
+        const selected = [];
         const usedCategories = new Set();
         
-        // 首先添加最佳匹配的案例
-        const bestMatch = matchScores[0];
-        if (bestMatch && bestMatch.score > 0) {
-            console.log(`最佳匹配主题: ${bestMatch.rule.name}, 匹配度: ${bestMatch.score}`);
-            allRecommendedCases.push(...bestMatch.rule.recommendedCases);
-            
-            // 记录已使用的类别
-            bestMatch.rule.recommendedCases.forEach(caseId => {
-                const caseItem = this.getCaseById(caseId);
-                if (caseItem && caseItem.category) {
-                    usedCategories.add(caseItem.category.split('/')[0]);
-                }
+        // 首先，优先选择不同类别的案例（确保多样性）
+        const categoryGroups = {};
+        candidates.forEach(c => {
+            const mainCat = c.category.split('/')[0];
+            if (!categoryGroups[mainCat]) categoryGroups[mainCat] = [];
+            categoryGroups[mainCat].push(c);
+        });
+        
+        // 对每个类别内的案例进行随机打乱
+        if (enableRandomization) {
+            Object.keys(categoryGroups).forEach(cat => {
+                categoryGroups[cat] = this.shuffleArray(categoryGroups[cat]);
             });
         }
         
-        // 添加其他匹配的推荐案例（确保多样性）
-        for (let i = 1; i < matchScores.length && allRecommendedCases.length < maxCases * 2; i++) {
-            const match = matchScores[i];
-            if (match.score > 0) {
-                // 检查是否有新类别的案例
-                const newCategoryCases = match.rule.recommendedCases.filter(caseId => {
-                    const caseItem = this.getCaseById(caseId);
-                    if (!caseItem || !caseItem.category) return true;
-                    const mainCategory = caseItem.category.split('/')[0];
-                    return !usedCategories.has(mainCategory);
-                });
-                
-                if (newCategoryCases.length > 0) {
-                    allRecommendedCases.push(...newCategoryCases);
-                    // 更新已使用类别
-                    newCategoryCases.forEach(caseId => {
-                        const caseItem = this.getCaseById(caseId);
-                        if (caseItem && caseItem.category) {
-                            usedCategories.add(caseItem.category.split('/')[0]);
-                        }
-                    });
-                }
+        // 第一轮：从每个类别中选择一个（确保多样性）
+        const categories = Object.keys(categoryGroups);
+        let catIndex = 0;
+        
+        while (selected.length < maxCases && catIndex < categories.length) {
+            const cat = categories[catIndex];
+            const availableInCat = categoryGroups[cat].filter(c => !selected.includes(c.id));
+            
+            if (availableInCat.length > 0) {
+                selected.push(availableInCat[0].id);
+                usedCategories.add(cat);
+            }
+            catIndex++;
+        }
+        
+        // 第二轮：如果还有名额，从所有候选中随机选择
+        if (selected.length < maxCases) {
+            const remaining = candidates
+                .filter(c => !selected.includes(c.id))
+                .map(c => c.id);
+            
+            const shuffledRemaining = enableRandomization ? this.shuffleArray(remaining) : remaining;
+            
+            while (selected.length < maxCases && shuffledRemaining.length > 0) {
+                selected.push(shuffledRemaining.shift());
             }
         }
         
-        // 去重
-        allRecommendedCases = [...new Set(allRecommendedCases)];
-        
-        if (allRecommendedCases.length > 0) {
-            console.log('合并推荐案例(多样性优化):', allRecommendedCases);
-            return this.selectDiverseCases(allRecommendedCases, maxCases);
-        }
-        
-        // 无匹配时返回默认案例（多样化选择）
-        console.log('未找到匹配主题，使用多样化默认案例');
-        return this.selectDiverseCases([
-            'case-005', 'case-004', 'case-001', 'case-014', 'case-015', 
-            'case-011', 'case-006', 'case-009'
-        ], maxCases);
+        // 最后随机打乱返回顺序
+        return enableRandomization ? this.shuffleArray(selected) : selected;
+    }
+
+    /**
+     * 从列表中随机选择指定数量的案例（不考虑类别多样性）
+     */
+    selectRandomCases(caseIds, maxCases) {
+        const shuffled = this.shuffleArray(caseIds);
+        return shuffled.slice(0, Math.min(maxCases, caseIds.length));
     }
     
     /**
@@ -785,14 +966,15 @@ class RAGEngine {
     }
 
     /**
-     * 根据查询检索相关知识（增强版，带智能案例匹配）
+     * 根据查询检索相关知识（增强版，带智能案例匹配 + 随机化）
      * @param {string} query - 查询主题
      * @param {string} type - 演讲类型
      * @param {number} topK - 返回结果数量
      * @param {number} maxCases - 最多返回的案例数量（默认2个）
      * @param {boolean} useSmartMatching - 是否使用智能案例匹配（默认true）
+     * @param {boolean} randomizeCases - 是否随机选择案例（默认true）
      */
-    async retrieve(query, type = 'keynote', topK = 5, maxCases = 2, useSmartMatching = true) {
+    async retrieve(query, type = 'keynote', topK = 5, maxCases = 2, useSmartMatching = true, randomizeCases = true) {
         if (!this.initialized) {
             await this.initialize();
         }
@@ -810,18 +992,29 @@ class RAGEngine {
             results.push(tencentData);
         }
 
-        // 3. 检索案例 - 按相关性排序并限制数量
-        const relevantCases = this.searchCases(queryLower, maxCases);
+        // 3. 检索案例 - 智能随机选择
+        console.log(`🔀 案例随机化: ${randomizeCases ? '已启用' : '已禁用'}`);
+        const relevantCases = this.searchCases(queryLower, maxCases, useSmartMatching, randomizeCases);
         results.push(...relevantCases);
 
-        // 4. 检索热点话题
+        // 4. 检索乐享知识库数据
+        const lexiangData = await this.searchLexiangKnowledge(queryLower, 2);
+        if (lexiangData.length > 0) {
+            results.push(...lexiangData);
+        }
+
+        // 5. 检索热点话题
         const hotTopics = this.searchHotTopics(queryLower);
         if (hotTopics.length > 0) {
             results.push(hotTopics[0]); // 最多1个热点话题
         }
 
-        // 5. 根据演讲类型获取风格模板
+        // 6. 根据演讲类型获取风格模板
         const styleTemplate = this.getStyleTemplate(type);
+        
+        // 7. 获取案例使用统计（调试用）
+        const caseStats = this.getCaseUsageStats();
+        console.log(`📊 案例使用统计: 已使用 ${caseStats.totalUniqueCases} 个不同案例`);
         
         return {
             context: this.formatContext(results.slice(0, topK)),
@@ -829,8 +1022,79 @@ class RAGEngine {
             stats: this.getLatestStats(),
             policies: relevantPolicies,
             cases: relevantCases,
-            selectedCases: relevantCases.slice(0, maxCases) // 明确返回选中的案例
+            lexiangData: lexiangData,
+            selectedCases: relevantCases.slice(0, maxCases), // 明确返回选中的案例
+            caseUsageStats: caseStats // 返回使用统计
         };
+    }
+
+    /**
+     * 搜索乐享知识库数据
+     */
+    async searchLexiangKnowledge(query, maxResults = 2) {
+        // 如果知识库中有lexiangData，从中搜索
+        if (this.knowledgeBase?.lexiangData?.items && this.knowledgeBase.lexiangData.items.length > 0) {
+            const items = this.knowledgeBase.lexiangData.items;
+            console.log(`🔍 从乐享知识库搜索: "${query}", 可用数据: ${items.length} 条`);
+            
+            const scored = items.map(item => {
+                let score = 0;
+                const text = `${item.title} ${item.content || ''}`.toLowerCase();
+                const queryLower = query.toLowerCase();
+                
+                // 标题包含查询词，高分
+                if (item.title?.toLowerCase().includes(queryLower)) score += 10;
+                
+                // 内容包含查询词
+                if (item.content?.toLowerCase().includes(queryLower)) score += 5;
+                
+                // 关键词匹配
+                const keywords = queryLower.split(/\s+/).filter(k => k.length > 1);
+                keywords.forEach(kw => {
+                    if (text.includes(kw)) score += 2;
+                });
+                
+                console.log(`  - ${item.title}: 匹配度 ${score}`);
+                
+                return { ...item, score };
+            }).filter(item => item.score > 0)
+              .sort((a, b) => b.score - a.score);
+            
+            // 如果有匹配项，返回匹配项；否则返回前几条数据
+            const selectedItems = scored.length > 0 ? scored.slice(0, maxResults) : items.slice(0, maxResults);
+            
+            console.log(`✅ 乐享搜索返回 ${selectedItems.length} 条数据`);
+            
+            return selectedItems.map(item => ({
+                type: 'lexiang',
+                title: item.title,
+                content: item.content || '',
+                source: '乐享知识库',
+                relevance: item.score ? Math.min(item.score / 10, 1) : 0.8
+            }));
+        }
+        
+        console.log('⚠️ 知识库中无乐享数据，尝试实时获取...');
+        
+        // 尝试实时获取
+        try {
+            const lexiangResults = await this.fetchLexiangData(query);
+            if (lexiangResults && lexiangResults.length > 0) {
+                console.log(`✅ 实时获取 ${lexiangResults.length} 条乐享数据`);
+                return lexiangResults.slice(0, maxResults).map(item => ({
+                    type: 'lexiang',
+                    title: item.title,
+                    content: item.content || '',
+                    source: '乐享知识库',
+                    relevance: item.relevance || 0.8
+                }));
+            }
+        } catch (e) {
+            console.log('乐享实时搜索失败:', e.message);
+        }
+        
+        console.log('❌ 未找到乐享数据');
+        return [];
     }
 
     /**
@@ -899,22 +1163,23 @@ class RAGEngine {
     }
 
     /**
-     * 搜索案例 - 智能匹配并限制数量（增强版，支持主题映射）
+     * 搜索案例 - 智能匹配并限制数量（增强版，支持主题映射 + 随机化）
      * @param {string} query - 查询关键词（演讲主题）
      * @param {number} maxResults - 最多返回的案例数量（默认2个）
      * @param {boolean} useSmartMatching - 是否使用智能主题匹配（默认true）
+     * @param {boolean} enableRandomization - 是否启用案例随机化（默认true）
      */
-    searchCases(query, maxResults = 2, useSmartMatching = true) {
+    searchCases(query, maxResults = 2, useSmartMatching = true, enableRandomization = true) {
         if (!this.knowledgeBase?.cases) return [];
 
         let selectedCaseIds = [];
         let matchReason = '';
 
-        // 优先使用智能主题匹配
+        // 优先使用智能主题匹配（带随机化）
         if (useSmartMatching && this.knowledgeBase.topic_case_mapping) {
-            selectedCaseIds = this.matchCasesByTopic(query);
-            matchReason = '基于主题智能匹配';
-            console.log(`智能匹配结果: ${selectedCaseIds.join(', ')}`);
+            selectedCaseIds = this.matchCasesByTopic(query, maxResults, enableRandomization);
+            matchReason = '基于主题智能随机匹配';
+            console.log(`智能随机匹配结果: ${selectedCaseIds.join(', ')}`);
         }
 
         // 获取案例详情
@@ -923,13 +1188,17 @@ class RAGEngine {
         // 如果智能匹配未返回足够案例，使用传统关键词搜索补充
         if (selectedCases.length < maxResults) {
             const existingIds = new Set(selectedCases.map(c => c.id));
-            const additionalCases = this.searchCasesByKeywords(query, maxResults - selectedCases.length);
+            const additionalCases = this.searchCasesByKeywords(query, maxResults * 3); // 多搜索一些以便随机选择
             
-            additionalCases.forEach(caseItem => {
+            // 随机打乱补充的案例
+            const shuffledAdditional = enableRandomization ? 
+                this.shuffleArray(additionalCases) : additionalCases;
+            
+            shuffledAdditional.forEach(caseItem => {
                 if (!existingIds.has(caseItem.id) && selectedCases.length < maxResults) {
                     selectedCases.push({
                         ...caseItem,
-                        matchSource: '关键词补充'
+                        matchSource: '关键词随机补充'
                     });
                 }
             });
@@ -945,8 +1214,29 @@ class RAGEngine {
             results: caseItem.results,
             date: caseItem.date,
             relevanceNote: caseItem.relevanceNote || '',
-            matchSource: caseItem.matchSource || matchReason || '智能匹配'
+            matchSource: caseItem.matchSource || matchReason || '智能随机匹配'
         }));
+    }
+
+    /**
+     * 获取案例使用统计（用于调试和优化）
+     */
+    getCaseUsageStats() {
+        this.initCaseHistory();
+        return {
+            usageCount: Object.fromEntries(this.caseUsageHistory),
+            recentlyUsed: this.recentlyUsedCases.slice(0, 10),
+            totalUniqueCases: this.caseUsageHistory.size
+        };
+    }
+
+    /**
+     * 重置案例使用历史
+     */
+    resetCaseHistory() {
+        this.caseUsageHistory = new Map();
+        this.recentlyUsedCases = [];
+        console.log('案例使用历史已重置');
     }
 
     /**
@@ -1068,6 +1358,7 @@ class RAGEngine {
      */
     formatContext(results) {
         let context = '';
+        let lexiangCount = 0;
         
         results.forEach((result, index) => {
             switch (result.type) {
@@ -1082,6 +1373,10 @@ class RAGEngine {
                     break;
                 case 'hot_topic':
                     context += `[热点话题] ${result.topic}，关键词：${result.keywords.join('、')}，趋势：${result.trend}\n\n`;
+                    break;
+                case 'lexiang':
+                    lexiangCount++;
+                    context += `[乐享知识库${lexiangCount}] ${result.title}：${result.content}\n\n`;
                     break;
             }
         });

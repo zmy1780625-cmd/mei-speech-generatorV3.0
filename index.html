@@ -1374,6 +1374,18 @@
                         </small>
                     </div>
 
+                    <div class="form-group" id="caseRandomGroup">
+                        <label for="caseRandom">案例选择方式</label>
+                        <select id="caseRandom">
+                            <option value="random" selected>🎲 智能随机（每次不同）</option>
+                            <option value="fixed">📌 固定优选（按匹配度）</option>
+                        </select>
+                        <small style="display: block; margin-top: 6px; color: #64748b; font-size: 12px;">
+                            <span id="randomHint">🎲 模式：从匹配主题的案例池中随机挑选，确保每次生成内容多样性</span>
+                            <span id="fixedHint" style="display: none;">📌 模式：按匹配度排序，选择最相关的案例</span>
+                        </small>
+                    </div>
+
                     <div class="form-group">
                         <label for="keyPoints">关键要点（可选）</label>
                         <textarea id="keyPoints" placeholder="请列出你希望在演讲中强调的关键要点，每行一个要点"></textarea>
@@ -1390,15 +1402,16 @@
                     </div>
 
                     <!-- 乐享知识库提示 -->
-                    <div class="lexiang-notice" style="margin: 12px 0; padding: 12px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; border: 1px solid #f59e0b;">
+                    <div class="lexiang-notice" id="lexiangNotice" style="margin: 12px 0; padding: 12px; background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); border-radius: 10px; border: 1px solid #22c55e;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
                             <span style="font-size: 18px;">📚</span>
-                            <span style="font-weight: 600; color: #92400e;">乐享知识库配置</span>
+                            <span style="font-weight: 600; color: #15803d;">乐享知识库已启用 ✅</span>
+                            <span id="lexiangStatus" style="font-size: 11px; padding: 2px 8px; background: #22c55e; color: white; border-radius: 10px;">连接中...</span>
                         </div>
-                        <p style="font-size: 12px; color: #78350f; line-height: 1.5; margin: 0;">
-                            已配置 <strong>CSIG教育空间</strong>连接，当前使用本地知识库数据（24个案例）。
-                            <span style="color: #dc2626;">注：乐享MCP需要服务端支持才能实时获取数据。</span>
-                            <a href="https://csig.lexiangla.com/spaces/103d710cda0b481dbee76ab7e8994c56?company_from=csig" target="_blank" style="color: #b45309; text-decoration: underline;">查看空间 →</a>
+                        <p style="font-size: 12px; color: #166534; line-height: 1.5; margin: 0;">
+                            已连接 <strong>CSIG教育空间</strong>，通过MCP协议实时获取数据
+                            <span id="lexiangStats" style="color: #15803d; display: block; margin-top: 4px;">正在获取数据...</span>
+                            <a href="https://csig.lexiangla.com/spaces/103d710cda0b481dbee76ab7e8994c56?company_from=csig" target="_blank" style="color: #15803d; text-decoration: underline;">查看空间 →</a>
                         </p>
                     </div>
 
@@ -1606,6 +1619,21 @@
     <!-- RAG引擎 -->
     <script src="./js/rag-engine.js"></script>
     
+    <!-- 乐享MCP配置 -->
+    <script>
+        window.mcpConfig = {
+            lexiang: {
+                enabled: true,
+                name: "乐享MCP",
+                description: "腾讯乐享知识库MCP服务 - CSIG教育空间",
+                transport: "streamable-http",
+                url: "https://mcp.lexiang-app.com/mcp?company_from=csig&preset=meta",
+                spaceUrl: "https://csig.lexiangla.com/spaces/103d710cda0b481dbee76ab7e8994c56?company_from=csig",
+                spaceId: "103d710cda0b481dbee76ab7e8994c56"
+            }
+        };
+    </script>
+    
     <script>
         let isApiKeyVisible = false;
         const HISTORY_KEY = 'speech_generator_history';
@@ -1709,7 +1737,39 @@
             if (typeof ragEngine !== 'undefined') {
                 ragEngine.initialize().then(() => {
                     console.log('RAG引擎就绪');
+                    // 更新乐享状态显示
+                    updateLexiangStatus();
                 });
+            }
+            
+            // 更新乐享知识库状态显示
+            async function updateLexiangStatus() {
+                const statusEl = document.getElementById('lexiangStatus');
+                const statsEl = document.getElementById('lexiangStats');
+                
+                if (!statusEl || !statsEl) return;
+                
+                try {
+                    // 获取乐享数据
+                    const lexiangData = await ragEngine.fetchLexiangData('腾讯教育');
+                    
+                    if (lexiangData && lexiangData.length > 0) {
+                        statusEl.textContent = '已连接';
+                        statusEl.style.background = '#22c55e';
+                        statsEl.textContent = `✅ 已成功获取 ${lexiangData.length} 条乐享数据，已合并到知识库`;
+                        console.log('✅ 乐享知识库连接成功，获取', lexiangData.length, '条数据');
+                    } else {
+                        statusEl.textContent = '本地模式';
+                        statusEl.style.background = '#f59e0b';
+                        statsEl.textContent = '⚠️ 乐享API暂未返回数据，使用本地知识库（24个案例）';
+                        console.log('⚠️ 乐享知识库暂无数据，使用本地知识库');
+                    }
+                } catch (error) {
+                    statusEl.textContent = '本地模式';
+                    statusEl.style.background = '#6b7280';
+                    statsEl.textContent = '⚠️ 乐享服务暂时不可用，使用本地知识库（24个案例）';
+                    console.log('⚠️ 乐享知识库连接失败:', error.message);
+                }
             }
         });
 
@@ -1791,6 +1851,22 @@
             
             let html = '';
             
+            // 显示乐享知识库数据
+            if (ragData.lexiangData && ragData.lexiangData.length > 0) {
+                html += `<div style="margin: 8px 0; padding: 8px; background: #dcfce7; border-radius: 6px; font-size: 12px; color: #15803d;">
+                    <strong>📚 乐享知识库</strong>：已获取 ${ragData.lexiangData.length} 条实时数据
+                </div>`;
+                ragData.lexiangData.slice(0, 2).forEach(item => {
+                    html += `<div class="rag-data-item" style="background: #f0fdf4; border-left: 3px solid #22c55e;">
+                        <span class="rag-data-type" style="background: #22c55e;">乐享</span>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 500;">${item.title}</div>
+                            <div style="font-size: 11px; color: #166534; margin-top: 2px;">${item.content?.substring(0, 50)}...</div>
+                        </div>
+                    </div>`;
+                });
+            }
+            
             // 显示政策
             if (ragData.policies && ragData.policies.length > 0) {
                 ragData.policies.slice(0, 2).forEach(policy => {
@@ -1803,8 +1879,13 @@
             
             // 显示智能匹配的案例
             if (ragData.cases && ragData.cases.length > 0) {
-                html += `<div style="margin: 8px 0; padding: 8px; background: #f0f9ff; border-radius: 6px; font-size: 12px; color: #0369a1;">
-                    <strong>🎯 智能匹配</strong>：根据主题自动推荐以下相关案例
+                const caseRandomMode = document.getElementById('caseRandom')?.value || 'random';
+                const modeText = caseRandomMode === 'random' ? '🎲 智能随机' : '📌 固定优选';
+                const modeColor = caseRandomMode === 'random' ? '#8b5cf6' : '#0369a1';
+                const modeBg = caseRandomMode === 'random' ? '#f3e8ff' : '#f0f9ff';
+                
+                html += `<div style="margin: 8px 0; padding: 8px; background: ${modeBg}; border-radius: 6px; font-size: 12px; color: ${modeColor};">
+                    <strong>${modeText}</strong>：根据主题自动推荐以下相关案例${caseRandomMode === 'random' ? '（从候选池中随机挑选）' : ''}
                 </div>`;
                 ragData.cases.slice(0, 2).forEach(caseItem => {
                     html += `<div class="rag-data-item" style="background: #f8fafc; border-left: 3px solid #3b82f6;">
@@ -1813,6 +1894,7 @@
                             <div style="font-weight: 500;">${caseItem.title}</div>
                             <div style="font-size: 12px; color: #64748b; margin-top: 2px;">${caseItem.partner}</div>
                             ${caseItem.relevanceNote ? `<div style="font-size: 11px; color: #0369a1; margin-top: 4px;">💡 ${caseItem.relevanceNote}</div>` : ''}
+                            ${caseItem.matchSource ? `<div style="font-size: 10px; color: ${modeColor}; margin-top: 2px;">📌 ${caseItem.matchSource}</div>` : ''}
                         </div>
                     </div>`;
                 });
@@ -2206,15 +2288,36 @@
         function toggleCaseMode() {
             const caseMode = document.getElementById('caseMode').value;
             const hint = document.getElementById('caseModeHint');
+            const caseRandomGroup = document.getElementById('caseRandomGroup');
             
             if (caseMode === 'with_case') {
                 hint.innerHTML = '💡 将引用知识库中的真实合作案例（如同济大学、上海海事大学等项目）';
                 hint.style.color = '#64748b';
+                caseRandomGroup.style.display = 'block';
             } else {
                 hint.innerHTML = '💡 内容中不引用具体案例，仅描述项目背景、目标、价值等信息';
                 hint.style.color = '#059669';
+                caseRandomGroup.style.display = 'none';
             }
         }
+
+        // 切换案例随机模式提示
+        function toggleCaseRandomMode() {
+            const caseRandom = document.getElementById('caseRandom').value;
+            const randomHint = document.getElementById('randomHint');
+            const fixedHint = document.getElementById('fixedHint');
+            
+            if (caseRandom === 'random') {
+                randomHint.style.display = 'inline';
+                fixedHint.style.display = 'none';
+            } else {
+                randomHint.style.display = 'none';
+                fixedHint.style.display = 'inline';
+            }
+        }
+        
+        // 监听案例随机模式变化
+        document.getElementById('caseRandom')?.addEventListener('change', toggleCaseRandomMode);
 
         async function generateSpeech() {
             const apiKey = document.getElementById('apiKey').value.trim();
@@ -2225,6 +2328,7 @@
             const style = document.getElementById('style').value;
             const keyPoints = document.getElementById('keyPoints').value.trim();
             const caseMode = document.getElementById('caseMode').value;
+            const caseRandom = document.getElementById('caseRandom')?.value || 'random';
             
             const output = document.getElementById('output');
             const generateBtn = document.querySelector('.generate-btn');
@@ -2340,16 +2444,25 @@
                 let ragContext = '';
                 let ragData = null;
                 let recommendedCases = [];
+                let lexiangDataCount = 0;
                 if (useRAG && typeof ragEngine !== 'undefined') {
                     try {
-                        output.innerHTML = '<div class="loading">🔍 正在智能匹配相关案例和数据...</div>';
-                        ragData = await ragEngine.retrieve(topic, type, 5);
+                        const enableRandomization = caseRandom === 'random';
+                        console.log(`🎲 案例选择模式: ${caseRandom === 'random' ? '智能随机' : '固定优选'}`);
+                        output.innerHTML = `<div class="loading">🔍 正在${enableRandomization ? '智能随机匹配' : '优选匹配'}相关案例和数据...</div>`;
+                        ragData = await ragEngine.retrieve(topic, type, 5, 2, true, enableRandomization);
                         ragContext = ragData.context;
                         
                         // 获取智能匹配的案例
                         if (ragData.cases && ragData.cases.length > 0) {
                             recommendedCases = ragData.cases;
                             console.log('智能匹配案例:', recommendedCases.map(c => c.title));
+                        }
+                        
+                        // 记录乐享数据数量
+                        if (ragData.lexiangData) {
+                            lexiangDataCount = ragData.lexiangData.length;
+                            console.log('乐享知识库数据:', lexiangDataCount, '条');
                         }
                         
                         // 显示RAG预览
@@ -2366,9 +2479,10 @@
 1. 📚 本地知识库（JSON文件）- 主要数据来源
    ✅ 当前已包含24个真实案例，覆盖K12、高校、职教、教育公平等多个领域
    
-2. 📚 乐享知识库（CSIG教育空间）- 待接入
+2. 📚 乐享知识库（CSIG教育空间）- 已配置
    空间地址：https://csig.lexiangla.com/spaces/103d710cda0b481dbee76ab7e8994c56
-   ⚠️ 注：乐享MCP需要服务端支持，当前版本使用本地知识库数据
+   MCP配置：streamable-http，已启用
+   ✅ 主数据源：本地知识库（24个案例）+ 乐享知识库（通过MCP实时获取）
 
 【腾讯教育真实项目清单 - 只能引用以下真实存在的项目】
 
@@ -2488,7 +2602,7 @@ ${audienceGuidance}`;
 
                 // 添加RAG检索到的上下文
                 if (ragContext) {
-                    prompt += `\n\n【RAG检索到的真实数据（必须优先使用）】\n${ragContext}\n\n⚠️ 使用说明：\n1. 以上是从知识库检索到的与主题最相关的真实数据\n2. 案例部分只选择了最相关的1-2个，请优先使用这些案例深入阐述\n3. 不要自行添加其他未检索到的案例，避免偏离主题\n4. 如果检索数据不足以支撑演讲稿，宁可减少具体案例，也不要虚构内容`;
+                    prompt += `\n\n【知识库检索结果 - 必须使用这些数据】\n${ragContext}\n\n⚠️ 关键使用规则（严格遵守，违规将导致内容被拒收）：\n1. 以上检索结果包含：本地知识库案例 + 乐享知识库数据（以[乐享知识库X]标记）\n2. 【绝对禁止瞎编】你只能使用上述检索结果中明确提供的数据和案例\n3. 【必须引用乐享数据】如果检索结果包含[乐享知识库X]条目，必须在演讲稿中明确引用这些内容\n4. 案例选择：从检索结果中选择最相关的1-2个案例深入阐述\n5. ❌ 严禁编造任何不在检索结果中的项目名称、数字、合作方\n6. 如果检索数据不足，宁可减少案例数量，也不要虚构内容\n7. 【验证要求】生成完成后请自查：所有提到的项目名称、数字、时间都必须在【知识库检索结果】中有明确来源`;
                 }
 
                 if (keyPoints) {
@@ -2531,8 +2645,17 @@ ${caseMode === 'no_case' ? `
 【重要区分 - 避免混淆】
 • 腾讯教育智能体平台 = 面向教育场景的智能体应用平台（用于教学、科研、管理等）
 • 腾讯开悟平台 = 多智能体强化学习科研平台（用于AI算法研究、强化学习教学、科研竞赛）
-  ⚠️ 严禁将开悟平台描述为"面向高校的智能体平台"或"教育智能体平台"
-  ✅ 正确描述："开悟是腾讯的多智能体强化学习科研平台，支持高校开展AI算法研究和教学"
+
+⚠️ 关于开悟平台的绝对禁止描述：
+  ❌ 严禁："开悟是腾讯教育智能体平台的重要组成部分"
+  ❌ 严禁："开悟作为教育智能体平台的一部分"
+  ❌ 严禁：将开悟描述为"面向高校的智能体平台"或"教育智能体平台"
+  ❌ 严禁：混淆开悟与教育智能体平台的关系
+
+✅ 正确描述：
+  • "开悟是腾讯的多智能体强化学习科研平台"
+  • "开悟平台支持高校开展AI算法研究和教学"
+  • "腾讯教育智能体平台和开悟平台是两个独立的产品"
   
 【腾讯自研产品措辞规范】
 ✅ 正确动词：推出、发布、提供、服务、覆盖
@@ -2607,9 +2730,19 @@ ${caseMode === 'no_case' ? `
    - 当前已包含24个真实案例，覆盖K12、高校、职教、教育公平等领域
    - 案例包括：同济大模型合作、海事大学海商法大模型、青少年AIGC创作工坊、智慧校园项目等
    
-2. 🥈 乐享知识库（CSIG教育空间）：待接入
+2. 🥈 乐享知识库（CSIG教育空间）：已配置
    - 空间地址：https://csig.lexiangla.com/spaces/103d710cda0b481dbee76ab7e8994c56
-   - 注：乐享MCP需要服务端支持，当前使用本地知识库数据
+   - MCP配置：已启用，支持实时数据获取
+   - 数据格式：[乐享知识库X] 标题：内容
+
+【必须使用检索数据 - 绝对禁止瞎编】
+⚠️ 关键要求：
+1. 知识库检索结果（上方【知识库检索结果】部分）已包含相关数据和案例
+2. 你必须基于这些检索到的真实数据生成内容
+3. ❌ 绝对禁止编造任何不在检索结果中的案例、数据或合作信息
+4. ✅ 只能使用【知识库检索结果】中明确提供的项目名称、数字、时间
+5. 如果检索结果中没有足够信息，请减少案例数量，而不是编造内容
+6. 乐享知识库数据以 [乐享知识库X] 格式提供，必须优先使用
 
 1. 真实性第一原则：
    - 你只能使用知识库中提供的真实案例和数据
@@ -2638,12 +2771,15 @@ ${caseMode === 'no_case' ? `
    - 智慧校园类：浙江大学智慧校园、武汉理工智慧教室
    - 国际合作类：香港高校合作
    
-4. 主题智能匹配案例（根据演讲主题自动推荐，优先使用）：
+4. 主题智能匹配案例（${caseRandom === 'random' ? '🎲 智能随机模式' : '📌 固定优选模式'} - 根据演讲主题自动推荐${caseRandom === 'random' ? '，每次生成随机选择不同案例' : ''}）：
 ${recommendedCases.length > 0 ? recommendedCases.map(c => `   - ${c.title}（${c.date}）- ${c.partner}。${c.relevanceNote || ''}`).join('\n') : `   - 同济大学大模型合作（2025年）- 适合学术研讨、大模型技术交流
    - 上海海事大学合作（2025年10月20日）- 适合专业领域AI应用、法学教育
    - AI Coding实训营（清华、上交、西电、华南理工、深大、港城大）- 适合编程教育
    - 青少年AIGC创作工坊（2025年8月推出，腾讯自研，目前覆盖300校5000师生）- 适合K12教育，⚠️非合作案例，禁用"参与"等词
    - 腾讯教育智能体平台（2025年9月，腾讯自研，8校64队109人参与）- 适合智能体应用分享`}
+${caseRandom === 'random' ? `
+   🎲 本次随机选中的案例（从匹配主题的案例池中随机挑选）：
+${recommendedCases.map((c, i) => `   ${i+1}. ${c.title} - ${c.matchSource || '智能随机匹配'}`).join('\n')}` : ''}
 
    ⚠️ 案例使用原则：
    - 以上是根据演讲主题「${topic}」智能匹配的最相关案例

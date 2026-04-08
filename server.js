@@ -333,6 +333,139 @@ app.post('/api/generate', async (req, res) => {
     }
 });
 
+// 乐享MCP代理API
+app.post('/api/lexiang', async (req, res) => {
+    try {
+        const { query, spaceId, limit = 10, action = 'search' } = req.body;
+        
+        // 读取MCP配置
+        const mcpConfigPath = path.join(__dirname, '.codebuddy', 'mcp.json');
+        let mcpConfig = {};
+        try {
+            const mcpData = await fs.readFile(mcpConfigPath, 'utf8');
+            mcpConfig = JSON.parse(mcpData);
+        } catch (e) {
+            console.log('MCP配置读取失败，使用默认配置');
+        }
+        
+        const lexiangConfig = mcpConfig.mcpServers?.lexiang || {
+            url: "https://mcp.lexiang-app.com/mcp?company_from=csig&preset=meta",
+            spaceId: "103d710cda0b481dbee76ab7e8994c56"
+        };
+        
+        const targetSpaceId = spaceId || lexiangConfig.spaceId;
+        
+        console.log('📚 乐享API请求:', { action, query, spaceId: targetSpaceId });
+        
+        // MCP协议实现
+        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        
+        let mcpRequest = {};
+        if (action === 'search') {
+            mcpRequest = {
+                jsonrpc: "2.0",
+                id: requestId,
+                method: "tools/call",
+                params: {
+                    name: "search_knowledge",
+                    arguments: {
+                        space_id: targetSpaceId,
+                        query: query || '腾讯教育',
+                        limit: limit
+                    }
+                }
+            };
+        } else {
+            mcpRequest = {
+                jsonrpc: "2.0",
+                id: requestId,
+                method: "tools/call",
+                params: {
+                    name: "list_space_contents",
+                    arguments: {
+                        space_id: targetSpaceId,
+                        limit: limit
+                    }
+                }
+            };
+        }
+        
+        // 调用乐享MCP服务
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(lexiangConfig.url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(mcpRequest),
+            timeout: 15000
+        });
+        
+        if (!response.ok) {
+            throw new Error(`乐享MCP服务错误: ${response.status}`);
+        }
+        
+        const mcpResponse = await response.json();
+        
+        // 解析MCP响应
+        let results = [];
+        if (mcpResponse.result && mcpResponse.result.content) {
+            const content = mcpResponse.result.content;
+            if (Array.isArray(content)) {
+                content.forEach((item, index) => {
+                    if (item.type === 'text') {
+                        try {
+                            const data = JSON.parse(item.text);
+                            if (Array.isArray(data.results)) {
+                                results = data.results.map((r, i) => ({
+                                    id: `lexiang-${i}`,
+                                    title: r.title || '未命名',
+                                    content: r.content || r.summary || '',
+                                    url: r.url || '',
+                                    source: 'lexiang',
+                                    relevance: 0.8
+                                }));
+                            }
+                        } catch (e) {
+                            results.push({
+                                id: `lexiang-${index}`,
+                                title: '乐享内容',
+                                content: item.text,
+                                source: 'lexiang',
+                                relevance: 0.5
+                            });
+                        }
+                    }
+                });
+            }
+        }
+        
+        console.log(`✅ 乐享API返回 ${results.length} 条数据`);
+        
+        res.json({
+            success: true,
+            results: results,
+            meta: {
+                query: query,
+                spaceId: targetSpaceId,
+                count: results.length,
+                timestamp: new Date().toISOString(),
+                source: 'lexiang_mcp'
+            }
+        });
+        
+    } catch (error) {
+        console.error('❌ 乐享API错误:', error.message);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            details: '乐享MCP服务暂时不可用，系统已自动降级使用本地知识库',
+            timestamp: new Date().toISOString()
+        });
+    }
+});
+
 // 清除配置
 app.delete('/api/config/:provider', async (req, res) => {
     try {
