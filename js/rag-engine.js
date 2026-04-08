@@ -690,7 +690,7 @@ class RAGEngine {
             console.log(`✅ 从乐享获取到 ${lexiangResults.length} 条数据，转换为案例格式`);
             
             // 2. 将乐享数据转换为案例格式
-            const lexiangCases = lexiangResults.map((item, index) => {
+            let lexiangCases = lexiangResults.map((item, index) => {
                 const content = item.content || '';
                 const lines = content.split('\n').filter(l => l.trim());
                 
@@ -712,6 +712,13 @@ class RAGEngine {
                                  item.updatedAt?.match(/(20\d{2})/);
                 const date = dateMatch ? `${dateMatch[1]}-${dateMatch[2] || '01'}` : '2025';
                 
+                // 降低上海海事案例的权重（如果不是搜索特定相关内容）
+                let relevance = item.relevance || 0.8;
+                const isMaritimeRelated = query.includes('海事') || query.includes('法律') || query.includes('法学') || query.includes('海商');
+                if (item.title && item.title.includes('海事') && !isMaritimeRelated) {
+                    relevance = relevance * 0.5; // 非海事相关搜索时降低权重
+                }
+                
                 return {
                     id: `lexiang-${index}`,
                     title: item.title || '教育合作项目',
@@ -722,23 +729,33 @@ class RAGEngine {
                     category: '乐享知识库/CSIG教育空间',
                     source: 'lexiang',
                     url: item.url || '',
-                    relevance: item.relevance || 0.8,
+                    relevance: relevance,
                     rawData: item // 保留原始数据以便后续使用
                 };
             });
             
-            // 3. 根据相关性排序并随机化选择
+            // 3. 过滤掉低权重的上海海事案例（除非搜索海事相关内容）
+            const isMaritimeRelated = query.includes('海事') || query.includes('法律') || query.includes('法学') || query.includes('海商');
+            if (!isMaritimeRelated) {
+                const beforeFilter = lexiangCases.length;
+                lexiangCases = lexiangCases.filter(c => !(c.title && c.title.includes('海事')));
+                if (lexiangCases.length < beforeFilter) {
+                    console.log(`🚫 已过滤上海海事案例（非海事相关搜索）`);
+                }
+            }
+            
+            // 4. 根据相关性排序并随机化选择
             let sortedCases = lexiangCases.sort((a, b) => b.relevance - a.relevance);
             
-            // 4. 如果启用随机化，打乱顺序
+            // 5. 如果启用随机化，打乱顺序
             if (enableRandomization) {
                 sortedCases = this.shuffleArray(sortedCases);
             }
             
-            // 5. 返回前maxCases个
+            // 6. 返回前maxCases个
             const selectedCases = sortedCases.slice(0, maxCases);
             
-            // 6. 记录使用历史
+            // 7. 记录使用历史
             this.recordCaseUsage(selectedCases.map(c => c.id));
             
             console.log('✅ 从乐享选中的案例:', selectedCases.map(c => c.title).join(', '));
