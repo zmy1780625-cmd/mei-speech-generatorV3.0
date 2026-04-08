@@ -1884,14 +1884,23 @@
                 const modeColor = caseRandomMode === 'random' ? '#8b5cf6' : '#0369a1';
                 const modeBg = caseRandomMode === 'random' ? '#f3e8ff' : '#f0f9ff';
                 
+                // 判断案例来源
+                const hasLexiangCase = ragData.cases.some(c => c.id && c.id.includes('lexiang'));
+                const sourceText = hasLexiangCase ? '📚 乐享CSIG教育空间' : '📚 本地知识库';
+                
                 html += `<div style="margin: 8px 0; padding: 8px; background: ${modeBg}; border-radius: 6px; font-size: 12px; color: ${modeColor};">
-                    <strong>${modeText}</strong>：根据主题自动推荐以下相关案例${caseRandomMode === 'random' ? '（从候选池中随机挑选）' : ''}
+                    <strong>${modeText}</strong>：${sourceText}实时搜索匹配
                 </div>`;
                 ragData.cases.slice(0, 2).forEach(caseItem => {
-                    html += `<div class="rag-data-item" style="background: #f8fafc; border-left: 3px solid #3b82f6;">
+                    const isLexiangCase = caseItem.id && caseItem.id.includes('lexiang');
+                    const sourceBadge = isLexiangCase ? 
+                        `<span style="display: inline-block; padding: 1px 6px; background: #22c55e; color: white; border-radius: 4px; font-size: 10px; margin-right: 6px;">乐享</span>` : 
+                        `<span style="display: inline-block; padding: 1px 6px; background: #64748b; color: white; border-radius: 4px; font-size: 10px; margin-right: 6px;">本地</span>`;
+                    
+                    html += `<div class="rag-data-item" style="background: #f8fafc; border-left: 3px solid ${isLexiangCase ? '#22c55e' : '#3b82f6'};">
                         <span class="rag-data-type case">案例</span>
                         <div style="flex: 1;">
-                            <div style="font-weight: 500;">${caseItem.title}</div>
+                            <div style="font-weight: 500;">${sourceBadge}${caseItem.title}</div>
                             <div style="font-size: 12px; color: #64748b; margin-top: 2px;">${caseItem.partner}</div>
                             ${caseItem.relevanceNote ? `<div style="font-size: 11px; color: #0369a1; margin-top: 4px;">💡 ${caseItem.relevanceNote}</div>` : ''}
                             ${caseItem.matchSource ? `<div style="font-size: 10px; color: ${modeColor}; margin-top: 2px;">📌 ${caseItem.matchSource}</div>` : ''}
@@ -2771,21 +2780,28 @@ ${caseMode === 'no_case' ? `
    - 智慧校园类：浙江大学智慧校园、武汉理工智慧教室
    - 国际合作类：香港高校合作
    
-4. 主题智能匹配案例（${caseRandom === 'random' ? '🎲 智能随机模式' : '📌 固定优选模式'} - 根据演讲主题自动推荐${caseRandom === 'random' ? '，每次生成随机选择不同案例' : ''}）：
-${recommendedCases.length > 0 ? recommendedCases.map(c => `   - ${c.title}（${c.date}）- ${c.partner}。${c.relevanceNote || ''}`).join('\n') : `   - 同济大学大模型合作（2025年）- 适合学术研讨、大模型技术交流
+4. 📚 乐享CSIG教育空间实时搜索匹配案例（${caseRandom === 'random' ? '🎲 智能随机模式' : '📌 固定优选模式'}）
+   【数据来源】案例从乐享知识库「智慧行业二部-教育」空间实时搜索获取
+   【搜索主题】${topic}
+   
+   匹配到的案例：
+${recommendedCases.length > 0 ? recommendedCases.map(c => `   - ${c.title}（${c.date}）- ${c.partner}
+     内容：${c.content?.substring(0, 80)}...` ).join('\n') : `   - 同济大学大模型合作（2025年）- 适合学术研讨、大模型技术交流
    - 上海海事大学合作（2025年10月20日）- 适合专业领域AI应用、法学教育
    - AI Coding实训营（清华、上交、西电、华南理工、深大、港城大）- 适合编程教育
    - 青少年AIGC创作工坊（2025年8月推出，腾讯自研，目前覆盖300校5000师生）- 适合K12教育，⚠️非合作案例，禁用"参与"等词
    - 腾讯教育智能体平台（2025年9月，腾讯自研，8校64队109人参与）- 适合智能体应用分享`}
+${recommendedCases.some(c => c.id && c.id.includes('lexiang')) ? `
+   ✅ 本次案例来源：乐享CSIG教育空间实时搜索（${recommendedCases.filter(c => c.id && c.id.includes('lexiang')).length} 条来自乐享）` : ''}
 ${caseRandom === 'random' ? `
-   🎲 本次随机选中的案例（从匹配主题的案例池中随机挑选）：
-${recommendedCases.map((c, i) => `   ${i+1}. ${c.title} - ${c.matchSource || '智能随机匹配'}`).join('\n')}` : ''}
+   🎲 案例选择方式：从乐享搜索返回的结果中${enableRandomization ? '随机挑选' : '按匹配度排序挑选'}：` : ''}
 
    ⚠️ 案例使用原则：
-   - 以上是根据演讲主题「${topic}」智能匹配的最相关案例
+   - 以上案例是系统从「乐享CSIG教育空间」实时搜索获取的真实项目数据
+   - 【优先使用】这些案例来自智慧行业二部-教育的知识库，是最新、最准确的数据
    - 请优先使用这些案例，确保与主题高度契合
-   - 如需使用其他案例，必须确保与主题相关
-   - 严禁使用与主题无关的案例强行凑数
+   - 如乐享返回的案例不足，可补充使用本地知识库中的案例
+   - 严禁编造任何不在检索结果中的项目名称、数字、合作方
    - 自研产品描述示例（青少年AIGC创作工坊）：
      ✅ 正确："2025年8月，我们推出了青少年AIGC创作工坊。截至目前，该平台已覆盖300多所学校、5000多名师生，创作出30000多件学生作品。"
      ✅ 正确："青少年AIGC创作工坊目前已服务300多所学校，平台上的师生创作了30000多件作品。"

@@ -671,15 +671,120 @@ class RAGEngine {
     }
 
     /**
-     * 主题-案例智能匹配算法（增强版：支持随机化、轮换和历史记录）
+     * 从乐享知识库搜索并匹配案例
+     * 优先从CSIG教育空间搜索相关数据，转换为案例格式
+     * @param {string} query - 演讲主题/查询
+     * @param {number} maxCases - 最多返回的案例数量
+     * @param {boolean} enableRandomization - 是否启用随机化（默认true）
+     * @returns {Promise<Array>} - 推荐案例列表（已从乐享获取并转换）
+     */
+    async matchCasesFromLexiang(query, maxCases = 3, enableRandomization = true) {
+        this.initCaseHistory();
+        
+        console.log('🔍 正在从CSIG教育空间搜索匹配案例:', query);
+        
+        // 1. 先从乐享知识库搜索相关数据
+        const lexiangResults = await this.fetchLexiangData(query);
+        
+        if (lexiangResults && lexiangResults.length > 0) {
+            console.log(`✅ 从乐享获取到 ${lexiangResults.length} 条数据，转换为案例格式`);
+            
+            // 2. 将乐享数据转换为案例格式
+            const lexiangCases = lexiangResults.map((item, index) => {
+                const content = item.content || '';
+                const lines = content.split('\n').filter(l => l.trim());
+                
+                // 尝试提取合作伙伴
+                const partnerMatch = content.match(/合作伙伴[：:]\s*([^\n]+)/) || 
+                                     content.match(/与([^（(]+)（[^)]+）合作/) ||
+                                     content.match(/([^\s,，]+大学|[^\s,，]+学院|[^\s,，]+学校)/);
+                const partner = partnerMatch ? partnerMatch[1].trim() : '腾讯教育生态';
+                
+                // 尝试提取成果描述
+                const resultMatch = content.match(/成果[：:]\s*([^\n]+)/) || 
+                                   content.match(/实现了([^。]+)/) ||
+                                   content.match(/覆盖([^。]+)/) ||
+                                   content.match(/已?服务([^。]+)/);
+                const results = resultMatch ? resultMatch[1].trim() : '推动教育数字化发展';
+                
+                // 尝试提取日期
+                const dateMatch = content.match(/(20\d{2})[年/-](\d{1,2})/) ||
+                                 item.updatedAt?.match(/(20\d{2})/);
+                const date = dateMatch ? `${dateMatch[1]}-${dateMatch[2] || '01'}` : '2025';
+                
+                return {
+                    id: `lexiang-${index}`,
+                    title: item.title || '教育合作项目',
+                    date: date,
+                    partner: partner,
+                    content: lines[0] || content.substring(0, 150) + (content.length > 150 ? '...' : ''),
+                    results: results,
+                    category: '乐享知识库/CSIG教育空间',
+                    source: 'lexiang',
+                    url: item.url || '',
+                    relevance: item.relevance || 0.8,
+                    rawData: item // 保留原始数据以便后续使用
+                };
+            });
+            
+            // 3. 根据相关性排序并随机化选择
+            let sortedCases = lexiangCases.sort((a, b) => b.relevance - a.relevance);
+            
+            // 4. 如果启用随机化，打乱顺序
+            if (enableRandomization) {
+                sortedCases = this.shuffleArray(sortedCases);
+            }
+            
+            // 5. 返回前maxCases个
+            const selectedCases = sortedCases.slice(0, maxCases);
+            
+            // 6. 记录使用历史
+            this.recordCaseUsage(selectedCases.map(c => c.id));
+            
+            console.log('✅ 从乐享选中的案例:', selectedCases.map(c => c.title).join(', '));
+            return selectedCases;
+        }
+        
+        console.log('⚠️ 乐享知识库未返回数据，回退到本地知识库匹配');
+        return [];
+    }
+
+    /**
+     * 主题-案例智能匹配算法（增强版：优先从乐享搜索，支持随机化）
      * 根据演讲主题自动选择最相关的案例，确保每次使用不同案例
      * @param {string} query - 演讲主题/查询
      * @param {number} maxCases - 最多返回的案例数量
      * @param {boolean} enableRandomization - 是否启用随机化（默认true）
-     * @returns {Array} - 推荐案例ID列表
+     * @returns {Promise<Array>} - 推荐案例ID列表
      */
-    matchCasesByTopic(query, maxCases = 3, enableRandomization = true) {
+    async matchCasesByTopic(query, maxCases = 3, enableRandomization = true) {
         this.initCaseHistory();
+        
+        // 1. 优先从乐享知识库搜索案例
+        const lexiangCases = await this.matchCasesFromLexiang(query, maxCases, enableRandomization);
+        
+        if (lexiangCases && lexiangCases.length > 0) {
+            // 将乐享案例添加到知识库中（临时）
+            if (!this.knowledgeBase.lexiangMatchedCases) {
+                this.knowledgeBase.lexiangMatchedCases = [];
+            }
+            
+            // 为本次匹配生成唯一的案例ID
+            const matchedCaseIds = lexiangCases.map((c, idx) => {
+                const uniqueId = `lexiang-matched-${Date.now()}-${idx}`;
+                // 添加到知识库cases中以便getCaseById能找到
+                const caseWithId = { ...c, id: uniqueId, matchSource: '乐享CSIG教育空间实时搜索' };
+                this.knowledgeBase.cases.push(caseWithId);
+                this.knowledgeBase.lexiangMatchedCases.push(caseWithId);
+                return uniqueId;
+            });
+            
+            console.log('🎯 优先使用乐享知识库匹配的案例:', matchedCaseIds.join(', '));
+            return matchedCaseIds;
+        }
+        
+        // 2. 如果乐享没有数据，回退到本地知识库匹配
+        console.log('📚 使用本地知识库进行主题匹配');
         
         if (!this.knowledgeBase || !this.knowledgeBase.topic_case_mapping) {
             console.log('未找到主题映射配置，使用随机默认案例');
@@ -693,7 +798,7 @@ class RAGEngine {
         const queryLower = query.toLowerCase();
         const queryWords = queryLower.split(/[\s,，.。!！?？;:；：""''（）()]+/).filter(w => w.length > 1);
         
-        console.log('主题匹配分析:', query, '| 关键词:', queryWords.join(', '));
+        console.log('本地主题匹配分析:', query, '| 关键词:', queryWords.join(', '));
         
         // 计算每个规则的匹配度
         const matchScores = rules.map(rule => {
@@ -760,7 +865,7 @@ class RAGEngine {
         if (candidateCasePool.length === 0) {
             console.log('未找到匹配主题，使用全部案例池');
             candidateCasePool = (this.knowledgeBase.cases || [])
-                .filter(c => c.id)
+                .filter(c => c.id && !c.id.startsWith('lexiang-')) // 排除乐享临时案例
                 .map(c => ({
                     id: c.id,
                     score: 1,
@@ -786,7 +891,7 @@ class RAGEngine {
             }
         });
         
-        console.log(`候选案例池: ${uniqueCandidates.length} 个案例`);
+        console.log(`本地候选案例池: ${uniqueCandidates.length} 个案例`);
         
         // 选择策略：多样化 + 随机化
         const selectedCases = this.selectCasesWithDiversityAndRandomization(uniqueCandidates, maxCases, enableRandomization);
@@ -794,7 +899,7 @@ class RAGEngine {
         // 记录本次使用的案例
         this.recordCaseUsage(selectedCases);
         
-        console.log('最终选中的案例:', selectedCases.join(', '));
+        console.log('最终选中的本地案例:', selectedCases.join(', '));
         return selectedCases;
     }
 
@@ -966,7 +1071,7 @@ class RAGEngine {
     }
 
     /**
-     * 根据查询检索相关知识（增强版，带智能案例匹配 + 随机化）
+     * 根据查询检索相关知识（增强版，优先从乐享搜索案例 + 随机化）
      * @param {string} query - 查询主题
      * @param {string} type - 演讲类型
      * @param {number} topK - 返回结果数量
@@ -992,12 +1097,12 @@ class RAGEngine {
             results.push(tencentData);
         }
 
-        // 3. 检索案例 - 智能随机选择
-        console.log(`🔀 案例随机化: ${randomizeCases ? '已启用' : '已禁用'}`);
-        const relevantCases = this.searchCases(queryLower, maxCases, useSmartMatching, randomizeCases);
+        // 3. 检索案例 - 优先从乐享CSIG教育空间搜索
+        console.log(`🔍 案例检索: 优先从乐享CSIG教育空间搜索 | 🔀 随机化: ${randomizeCases ? '已启用' : '已禁用'}`);
+        const relevantCases = await this.searchCases(queryLower, maxCases, useSmartMatching, randomizeCases);
         results.push(...relevantCases);
 
-        // 4. 检索乐享知识库数据
+        // 4. 检索乐享知识库数据（额外补充）
         const lexiangData = await this.searchLexiangKnowledge(queryLower, 2);
         if (lexiangData.length > 0) {
             results.push(...lexiangData);
@@ -1163,23 +1268,23 @@ class RAGEngine {
     }
 
     /**
-     * 搜索案例 - 智能匹配并限制数量（增强版，支持主题映射 + 随机化）
+     * 搜索案例 - 智能匹配并限制数量（增强版，优先从乐享搜索，支持主题映射 + 随机化）
      * @param {string} query - 查询关键词（演讲主题）
      * @param {number} maxResults - 最多返回的案例数量（默认2个）
      * @param {boolean} useSmartMatching - 是否使用智能主题匹配（默认true）
      * @param {boolean} enableRandomization - 是否启用案例随机化（默认true）
      */
-    searchCases(query, maxResults = 2, useSmartMatching = true, enableRandomization = true) {
+    async searchCases(query, maxResults = 2, useSmartMatching = true, enableRandomization = true) {
         if (!this.knowledgeBase?.cases) return [];
 
         let selectedCaseIds = [];
         let matchReason = '';
 
-        // 优先使用智能主题匹配（带随机化）
+        // 优先使用智能主题匹配（带随机化，优先从乐享搜索）
         if (useSmartMatching && this.knowledgeBase.topic_case_mapping) {
-            selectedCaseIds = this.matchCasesByTopic(query, maxResults, enableRandomization);
-            matchReason = '基于主题智能随机匹配';
-            console.log(`智能随机匹配结果: ${selectedCaseIds.join(', ')}`);
+            selectedCaseIds = await this.matchCasesByTopic(query, maxResults, enableRandomization);
+            matchReason = '基于乐享CSIG教育空间实时搜索';
+            console.log(`智能匹配结果: ${selectedCaseIds.join(', ')}`);
         }
 
         // 获取案例详情
@@ -1198,7 +1303,7 @@ class RAGEngine {
                 if (!existingIds.has(caseItem.id) && selectedCases.length < maxResults) {
                     selectedCases.push({
                         ...caseItem,
-                        matchSource: '关键词随机补充'
+                        matchSource: '本地知识库关键词补充'
                     });
                 }
             });
@@ -1214,7 +1319,7 @@ class RAGEngine {
             results: caseItem.results,
             date: caseItem.date,
             relevanceNote: caseItem.relevanceNote || '',
-            matchSource: caseItem.matchSource || matchReason || '智能随机匹配'
+            matchSource: caseItem.matchSource || matchReason || '乐享CSIG教育空间搜索'
         }));
     }
 
