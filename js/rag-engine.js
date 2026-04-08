@@ -860,6 +860,9 @@ class RAGEngine {
             console.log(`  匹配${i+1}: ${m.rule.name} (得分:${m.score}, 关键词:${m.matchedKeywords.join(',')})`);
         });
         
+        // 判断是否搜索海事相关内容
+        const isMaritimeRelated = queryLower.includes('海事') || queryLower.includes('法律') || queryLower.includes('法学') || queryLower.includes('海商');
+        
         // 收集所有匹配的案例池
         let candidateCasePool = [];
         
@@ -867,6 +870,11 @@ class RAGEngine {
             match.rule.recommendedCases.forEach(caseId => {
                 const caseItem = this.getCaseById(caseId);
                 if (caseItem) {
+                    // 过滤掉上海海事案例（除非搜索海事相关内容）
+                    if (!isMaritimeRelated && caseItem.title && caseItem.title.includes('海事')) {
+                        console.log(`🚫 过滤本地知识库中的上海海事案例: ${caseItem.title}`);
+                        return;
+                    }
                     candidateCasePool.push({
                         id: caseId,
                         score: match.score,
@@ -883,6 +891,14 @@ class RAGEngine {
             console.log('未找到匹配主题，使用全部案例池');
             candidateCasePool = (this.knowledgeBase.cases || [])
                 .filter(c => c.id && !c.id.startsWith('lexiang-')) // 排除乐享临时案例
+                .filter(c => {
+                    // 过滤掉上海海事案例（除非搜索海事相关内容）
+                    if (!isMaritimeRelated && c.title && c.title.includes('海事')) {
+                        console.log(`🚫 过滤本地案例池中的上海海事案例: ${c.title}`);
+                        return false;
+                    }
+                    return true;
+                })
                 .map(c => ({
                     id: c.id,
                     score: 1,
@@ -1369,7 +1385,18 @@ class RAGEngine {
     searchCasesByKeywords(query, maxResults = 2) {
         if (!this.knowledgeBase?.cases) return [];
 
+        const queryLower = query.toLowerCase();
+        const isMaritimeRelated = queryLower.includes('海事') || queryLower.includes('法律') || queryLower.includes('法学') || queryLower.includes('海商');
+
         const scoredCases = this.knowledgeBase.cases
+            .filter(caseItem => {
+                // 过滤掉上海海事案例（除非搜索海事相关内容）
+                if (!isMaritimeRelated && caseItem.title && caseItem.title.includes('海事')) {
+                    console.log(`🚫 关键词搜索过滤上海海事案例: ${caseItem.title}`);
+                    return false;
+                }
+                return true;
+            })
             .map(caseItem => {
                 const searchText = `${caseItem.title} ${caseItem.partner} ${caseItem.content} ${caseItem.results}`.toLowerCase();
                 let relevance = 0;
